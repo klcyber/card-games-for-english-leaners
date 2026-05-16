@@ -49,6 +49,9 @@ const strings = {
     pairUnit: 'pairs',
     readyCount: (n, t) => `${n}/${t} Ready`,
     drawTarget: 'Draw from here!',
+    errNotAPair: "❌ Not a pair! Try again.",
+    errJokerCannotDiscard: "❌ You can't discard the Joker.",
+    errNotInHand: "❌ Card not found in hand.",
     gameInProgress: "⏳ Game in progress. You'll join from the next game.",
     needMorePlayers: 'Need 2+ players (add CPU or invite someone)',
     qrLabel: 'Scan to open this site',
@@ -98,6 +101,9 @@ const strings = {
     pairUnit: 'ペア',
     readyCount: (n, t) => `${n}/${t} 準備完了`,
     drawTarget: 'ここから引く！',
+    errNotAPair: '❌ ペアではありません！もう一度考えてみよう',
+    errJokerCannotDiscard: '❌ ジョーカーは捨てられません',
+    errNotInHand: '❌ 手札にないカードです',
     gameInProgress: '⏳ ゲーム進行中です。終了後に次のゲームから参加できます。',
     needMorePlayers: '2人以上必要です（CPUを追加するか、もう1人招待してください）',
     qrLabel: 'スキャンしてアクセス',
@@ -664,9 +670,10 @@ socket.on('hand-update', ({ hand, newCardId, discarded }) => {
   renderMyHand(isInitialDeal ? hand.map(c => c.id) : []);
 });
 
-socket.on('discard-error', ({ message }) => {
+socket.on('discard-error', ({ code }) => {
   const el = document.getElementById('om-discard-error');
-  el.textContent = '❌ ' + message;
+  const key = code === 'notAPair' ? 'errNotAPair' : code === 'jokerCannotDiscard' ? 'errJokerCannotDiscard' : 'errNotInHand';
+  el.textContent = t(key);
   setTimeout(() => {
     selectedCards = [];
     el.textContent = '';

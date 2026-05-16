@@ -545,9 +545,9 @@ io.on('connection', socket => {
 
     const card1 = hand.find(c => c.id === cardId1);
     const card2 = hand.find(c => c.id === cardId2);
-    if (!card1 || !card2) return socket.emit('discard-error', { message: '手札にないカードです' });
-    if (card1.wordId === 'joker' || card2.wordId === 'joker') return socket.emit('discard-error', { message: 'ジョーカーは捨てられません' });
-    if (card1.wordId !== card2.wordId) return socket.emit('discard-error', { message: 'ペアではありません！もう一度考えてみよう' });
+    if (!card1 || !card2) return socket.emit('discard-error', { code: 'notInHand' });
+    if (card1.wordId === 'joker' || card2.wordId === 'joker') return socket.emit('discard-error', { code: 'jokerCannotDiscard' });
+    if (card1.wordId !== card2.wordId) return socket.emit('discard-error', { code: 'notAPair' });
 
     g.hands[socket.id] = hand.filter(c => c.id !== cardId1 && c.id !== cardId2);
     if (g.hands[socket.id].length === 0 && !g.eliminated.includes(socket.id)) {
