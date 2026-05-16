@@ -11,17 +11,24 @@ def clean(s):
     return re.sub(r'\s+', ' ', s)
 
 def clean_jp(s):
-    """Take first meaningful translation, clean up."""
+    """Take only the first translation (before first ; or ,)."""
     s = clean(s)
-    if not s:
+    if not s or s == 'N/A':
         return ''
-    # Take content before the first semicolon for the primary translation
-    # but keep all if it's short enough
-    if len(s) <= 40:
-        return s
-    # Take up to first semicolon
+    # Take first part before semicolon
     primary = s.split(';')[0].strip()
-    return primary if primary else s[:40]
+    # Take first part before comma, respecting parentheses
+    result = ''
+    depth = 0
+    for ch in primary:
+        if ch in '（(':
+            depth += 1
+        elif ch in '）)':
+            depth -= 1
+        elif ch == ',' and depth == 0:
+            break
+        result += ch
+    return result.strip() if result.strip() else primary
 
 conn = sqlite3.connect('/tmp/tsl_extract/collection.anki2')
 rows = conn.execute('SELECT flds FROM notes').fetchall()
