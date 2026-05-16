@@ -354,33 +354,18 @@ input[type="range"] {
   z-index: 2;
   pointer-events: none;
 }
-/* 内枠 ＋ ダイヤ柄（濃いゴールドで浮き彫り感） */
+/* 内枠のみ */
 .flip-card-front::after {
   content: '';
   position: absolute;
   inset: 5px;
   border: 1.5px solid rgba(120,80,0,0.5);
   border-radius: 5px;
-  background:
-    repeating-linear-gradient(
-      45deg,
-      rgba(100,60,0,0.18) 0px,
-      rgba(100,60,0,0.18) 1px,
-      transparent 1px,
-      transparent 8px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(100,60,0,0.18) 0px,
-      rgba(100,60,0,0.18) 1px,
-      transparent 1px,
-      transparent 8px
-    );
   z-index: 1;
 }
 
 .flip-card-back {
-  background: var(--surface);
+  background: #ffffff;
   color: var(--text);
   transform: rotateY(180deg);
   border: 2px solid var(--border);
