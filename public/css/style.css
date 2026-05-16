@@ -776,15 +776,19 @@ input[type="range"] {
   border-width: 3px;
   background: linear-gradient(160deg, #ecfdf5 0%, #a7f3d0 100%);
   animation: pulse-green 0.8s ease infinite;
-  position: relative;
 }
-#screen-oldmaid .hand-card.newly-drawn::after {
-  content: '🆕';
-  position: absolute;
-  top: -10px;
-  right: -6px;
-  font-size: 0.75rem;
-  line-height: 1;
+
+#screen-oldmaid .hand-card.card-taken {
+  border-color: #ef4444;
+  border-width: 3px;
+  background: linear-gradient(160deg, #fff1f2 0%, #fecaca 100%);
+  animation: card-taken-fly 0.7s ease forwards;
+  pointer-events: none;
+}
+@keyframes card-taken-fly {
+  0%   { transform: scale(1) translateY(0); opacity: 1; }
+  30%  { transform: scale(1.15) translateY(-8px); opacity: 1; }
+  100% { transform: scale(0.5) translateY(-60px); opacity: 0; }
 }
 @keyframes om-deal-in {
   from { transform: scale(0.25) translateY(-60px); opacity: 0; }

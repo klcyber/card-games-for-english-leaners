@@ -652,8 +652,26 @@ let omDrawAnimating = false;  // 引くアニメーション中（opponents再�
 let omLastState = null;       // renderOldMaid に渡された最新state
 let prevHandIds = new Set();  // アニメーション用: 前フレームの手札ID
 
-socket.on('hand-update', ({ hand, newCardId, discarded }) => {
+socket.on('hand-update', ({ hand, newCardId, discarded, takenCardId }) => {
   const oldIds = prevHandIds;
+
+  if (takenCardId) {
+    // 取られたカードを一瞬見せてからアニメーションで消す
+    const takenCard = myHand.find(c => c.id === takenCardId);
+    if (takenCard) {
+      const el = document.querySelector(`[data-card-id="${takenCardId}"]`);
+      if (el) {
+        el.classList.add('card-taken');
+        setTimeout(() => {
+          myHand = hand;
+          prevHandIds = new Set(hand.map(c => c.id));
+          renderMyHand();
+        }, 700);
+        return;
+      }
+    }
+  }
+
   myHand = hand;
   prevHandIds = new Set(hand.map(c => c.id));
   if (newCardId) {
