@@ -5,7 +5,7 @@
     {
       "id": "t0001",
       "word": "mister",
-      "translation": "",
+      "translation": "〜さん",
       "definition": "a form of address for a man",
       "level": 1
     },
@@ -33,7 +33,7 @@
     {
       "id": "t0005",
       "word": "e-book",
-      "translation": "",
+      "translation": "電子書籍",
       "definition": "a type of publication to be read on an electronic device",
       "level": 1
     },
@@ -68,7 +68,7 @@
     {
       "id": "t0010",
       "word": "fax",
-      "translation": "",
+      "translation": "ファックス",
       "definition": "to send using a fax machine",
       "level": 1
     },
@@ -96,7 +96,7 @@
     {
       "id": "t0014",
       "word": "website",
-      "translation": "",
+      "translation": "ウェブサイト",
       "definition": "a set of internet pages that give information about a particular person or organization",
       "level": 1
     },
@@ -201,7 +201,7 @@
     {
       "id": "t0029",
       "word": "résumé",
-      "translation": "",
+      "translation": "履歴書",
       "definition": "a document that describes a person's work history and qualifications",
       "level": 1
     },
@@ -502,7 +502,7 @@
     {
       "id": "t0072",
       "word": "cellphone",
-      "translation": "",
+      "translation": "携帯電話",
       "definition": "phone that connects to the system by radio so that you can use it anywhere",
       "level": 1
     },
@@ -614,14 +614,14 @@
     {
       "id": "t0088",
       "word": "coworker",
-      "translation": "",
+      "translation": "同僚",
       "definition": "a person that works with you in the same workplace",
       "level": 1
     },
     {
       "id": "t0089",
       "word": "upcoming",
-      "translation": "",
+      "translation": "近々の",
       "definition": "happening soon",
       "level": 1
     },
@@ -691,7 +691,7 @@
     {
       "id": "t0099",
       "word": "laptop",
-      "translation": "",
+      "translation": "ノートパソコン",
       "definition": "a computer small enough to carry and to use in your lap",
       "level": 1
     },
@@ -733,7 +733,7 @@
     {
       "id": "t0105",
       "word": "attendee",
-      "translation": "",
+      "translation": "参加者",
       "definition": "someone present (at a meeting or event)",
       "level": 1
     },
@@ -859,7 +859,7 @@
     {
       "id": "t0123",
       "word": "distractor",
-      "translation": "",
+      "translation": "不正解の選択肢",
       "definition": "an incorrect option offered in a multiple choice question",
       "level": 1
     },
@@ -1048,7 +1048,7 @@
     {
       "id": "t0150",
       "word": "workplace",
-      "translation": "",
+      "translation": "職場",
       "definition": "the location where you do your job",
       "level": 1
     },
@@ -1279,7 +1279,7 @@
     {
       "id": "t0183",
       "word": "advisor",
-      "translation": "",
+      "translation": "顧問",
       "definition": "someone who gives an opinion on what to do",
       "level": 1
     },
@@ -1349,7 +1349,7 @@
     {
       "id": "t0193",
       "word": "download",
-      "translation": "",
+      "translation": "ダウンロード",
       "definition": "transfer a file or program onto your computer",
       "level": 1
     },
@@ -1776,7 +1776,7 @@
     {
       "id": "t0254",
       "word": "presenter",
-      "translation": "",
+      "translation": "発表者",
       "definition": "a person who shows and explains something to an audience",
       "level": 1
     },
@@ -2063,7 +2063,7 @@
     {
       "id": "t0295",
       "word": "ice cream",
-      "translation": "",
+      "translation": "アイスクリーム",
       "definition": "Frozen food made of cream, very sweet and good to eat",
       "level": 1
     },
@@ -2854,7 +2854,7 @@
     {
       "id": "t0408",
       "word": "desktop",
-      "translation": "",
+      "translation": "デスクトップ",
       "definition": "the working area of a computer screen when no programs are open",
       "level": 1
     },
@@ -3092,7 +3092,7 @@
     {
       "id": "t0442",
       "word": "boardroom",
-      "translation": "",
+      "translation": "会議室",
       "definition": "a room where the board of directors of a company hold meetings",
       "level": 2
     },
@@ -3351,7 +3351,7 @@
     {
       "id": "t0479",
       "word": "reviewer",
-      "translation": "",
+      "translation": "評価者",
       "definition": "someone who checks written work",
       "level": 2
     },
@@ -3470,7 +3470,7 @@
     {
       "id": "t0496",
       "word": "spokesperson",
-      "translation": "",
+      "translation": "広報担当者",
       "definition": "one man or woman who speaks officially for the rest of the group",
       "level": 2
     },
@@ -3484,7 +3484,7 @@
     {
       "id": "t0498",
       "word": "airfare",
-      "translation": "",
+      "translation": "航空運賃",
       "definition": "the amount of money charged for traveling by airplane",
       "level": 2
     },
@@ -3498,7 +3498,7 @@
     {
       "id": "t0500",
       "word": "businessperson",
-      "translation": "",
+      "translation": "実業家",
       "definition": "a person who works in commercial or industrial business, especially an owner or executive",
       "level": 2
     },
@@ -3708,7 +3708,7 @@
     {
       "id": "t0530",
       "word": "login",
-      "translation": "",
+      "translation": "ログイン",
       "definition": "to enter a computer website account",
       "level": 2
     },
@@ -3743,7 +3743,7 @@
     {
       "id": "t0535",
       "word": "planner",
-      "translation": "",
+      "translation": "企画者",
       "definition": "a person who makes plans",
       "level": 2
     },
@@ -3974,7 +3974,7 @@
     {
       "id": "t0568",
       "word": "workforce",
-      "translation": "",
+      "translation": "労働力",
       "definition": "all the people that a company employs",
       "level": 2
     },
@@ -4065,7 +4065,7 @@
     {
       "id": "t0581",
       "word": "firefighter",
-      "translation": "",
+      "translation": "消防士",
       "definition": "someone whose job it is to put out fires or save people from dangerous situations",
       "level": 2
     },
@@ -4086,7 +4086,7 @@
     {
       "id": "t0584",
       "word": "internet",
-      "translation": "",
+      "translation": "インターネット",
       "definition": "the information highway, the worldwide web",
       "level": 2
     },
@@ -4233,7 +4233,7 @@
     {
       "id": "t0605",
       "word": "eager",
-      "translation": "",
+      "translation": "熱心な",
       "definition": "to be excited to help or do something",
       "level": 2
     },
@@ -4604,7 +4604,7 @@
     {
       "id": "t0658",
       "word": "spam",
-      "translation": "",
+      "translation": "スパム",
       "definition": "unwanted e-mail, usually of a commercial nature sent out in bulk",
       "level": 2
     },
@@ -4702,7 +4702,7 @@
     {
       "id": "t0672",
       "word": "checkout",
-      "translation": "",
+      "translation": "チェックアウト",
       "definition": "the latest time that you must vacate a hotel room",
       "level": 2
     },
@@ -4800,7 +4800,7 @@
     {
       "id": "t0686",
       "word": "hotline",
-      "translation": "",
+      "translation": "ホットライン",
       "definition": "telephone line that gives direct, fast access",
       "level": 2
     },
@@ -4919,14 +4919,14 @@
     {
       "id": "t0703",
       "word": "violation",
-      "translation": "",
+      "translation": "違反",
       "definition": "the act of breaking a rule or law",
       "level": 2
     },
     {
       "id": "t0704",
       "word": "webpage",
-      "translation": "",
+      "translation": "ウェブページ",
       "definition": "information shown on the screen of an internet website about a particular subject",
       "level": 2
     },
@@ -5045,7 +5045,7 @@
     {
       "id": "t0721",
       "word": "entrée",
-      "translation": "",
+      "translation": "メインディッシュ",
       "definition": "a main dish served during a meal",
       "level": 2
     },
@@ -5143,7 +5143,7 @@
     {
       "id": "t0735",
       "word": "pan",
-      "translation": "",
+      "translation": "フライパン",
       "definition": "a flat, round cooking container used for frying",
       "level": 2
     },
@@ -5206,7 +5206,7 @@
     {
       "id": "t0744",
       "word": "reminder",
-      "translation": "",
+      "translation": "リマインダー",
       "definition": "something that makes you remember something",
       "level": 2
     },
@@ -5311,7 +5311,7 @@
     {
       "id": "t0759",
       "word": "asleep",
-      "translation": "",
+      "translation": "眠って",
       "definition": "not awake, in sleep",
       "level": 2
     },
@@ -5388,7 +5388,7 @@
     {
       "id": "t0770",
       "word": "criteria",
-      "translation": "",
+      "translation": "基準",
       "definition": "details used to make a decision",
       "level": 2
     },
@@ -5458,7 +5458,7 @@
     {
       "id": "t0780",
       "word": "fundraise",
-      "translation": "",
+      "translation": "募金活動をする",
       "definition": "to get money from people for a partular project",
       "level": 2
     },
@@ -5486,7 +5486,7 @@
     {
       "id": "t0784",
       "word": "healthcare",
-      "translation": "",
+      "translation": "医療",
       "definition": "the business of providing medical services to a community or individuals",
       "level": 2
     },
@@ -5563,7 +5563,7 @@
     {
       "id": "t0795",
       "word": "repairperson",
-      "translation": "",
+      "translation": "修理担当者",
       "definition": "Person whose job it is to fixe things when they are broken",
       "level": 2
     },
@@ -5577,7 +5577,7 @@
     {
       "id": "t0797",
       "word": "restroom",
-      "translation": "",
+      "translation": "トイレ",
       "definition": "room in a building which contains one or more toilets for public use",
       "level": 2
     },
@@ -5598,7 +5598,7 @@
     {
       "id": "t0800",
       "word": "spreadsheet",
-      "translation": "",
+      "translation": "スプレッドシート",
       "definition": "a computer program worksheet or table that you enter information onto",
       "level": 2
     },
@@ -5654,7 +5654,7 @@
     {
       "id": "t0808",
       "word": "urgently",
-      "translation": "",
+      "translation": "緊急に",
       "definition": "to do something right away",
       "level": 2
     },
@@ -5864,7 +5864,7 @@
     {
       "id": "t0838",
       "word": "lifestyle",
-      "translation": "",
+      "translation": "ライフスタイル",
       "definition": "the way that you live; the things that you usually do",
       "level": 2
     },
@@ -6025,7 +6025,7 @@
     {
       "id": "t0861",
       "word": "chairperson",
-      "translation": "",
+      "translation": "議長",
       "definition": "the person in charge of a meeting",
       "level": 3
     },
@@ -6207,7 +6207,7 @@
     {
       "id": "t0887",
       "word": "teen",
-      "translation": "",
+      "translation": "十代の",
       "definition": "someone aged between the ages of thirteen and nineteen",
       "level": 3
     },
@@ -6256,7 +6256,7 @@
     {
       "id": "t0894",
       "word": "wisely",
-      "translation": "",
+      "translation": "賢明に",
       "definition": "to do something that is the right thing to do",
       "level": 3
     },
@@ -6396,7 +6396,7 @@
     {
       "id": "t0914",
       "word": "downsize",
-      "translation": "",
+      "translation": "縮小する",
       "definition": "reduce in size or number",
       "level": 3
     },
@@ -6438,7 +6438,7 @@
     {
       "id": "t0920",
       "word": "flextime",
-      "translation": "",
+      "translation": "フレックスタイム",
       "definition": "there is a choice about when to start and finish working a set number of hours",
       "level": 3
     },
@@ -6487,7 +6487,7 @@
     {
       "id": "t0927",
       "word": "homeowner",
-      "translation": "",
+      "translation": "家主",
       "definition": "someone who owns the house that they live in",
       "level": 3
     },
@@ -6648,7 +6648,7 @@
     {
       "id": "t0950",
       "word": "reimbursement",
-      "translation": "",
+      "translation": "払い戻し",
       "definition": "the money that is given to cover the cost of an expense that has been paid out",
       "level": 3
     },
@@ -7173,7 +7173,7 @@
     {
       "id": "t1025",
       "word": "traditionally",
-      "translation": "",
+      "translation": "伝統的に",
       "definition": "to do things the way they used to be done",
       "level": 3
     },
@@ -7187,7 +7187,7 @@
     {
       "id": "t1027",
       "word": "underway",
-      "translation": "",
+      "translation": "進行中",
       "definition": "happening now",
       "level": 3
     },
@@ -7432,7 +7432,7 @@
     {
       "id": "t1062",
       "word": "housekeep",
-      "translation": "",
+      "translation": "家事をする",
       "definition": "take care of all business related to a household",
       "level": 3
     },
@@ -7726,7 +7726,7 @@
     {
       "id": "t1104",
       "word": "whoever",
-      "translation": "",
+      "translation": "誰でも",
       "definition": "anyone who",
       "level": 3
     },
@@ -7985,7 +7985,7 @@
     {
       "id": "t1141",
       "word": "euro",
-      "translation": "",
+      "translation": "ユーロ",
       "definition": "a unit of money used in a number of European countries",
       "level": 3
     },
@@ -8034,7 +8034,7 @@
     {
       "id": "t1148",
       "word": "hardworking",
-      "translation": "",
+      "translation": "勤勉な",
       "definition": "always puts a lot of effort into the task or job",
       "level": 3
     },
@@ -8167,14 +8167,14 @@
     {
       "id": "t1167",
       "word": "paralegal",
-      "translation": "",
+      "translation": "法律補助員",
       "definition": "someone who works in a law company but who has not trained as a lawyer",
       "level": 3
     },
     {
       "id": "t1168",
       "word": "partially",
-      "translation": "",
+      "translation": "部分的に",
       "definition": "In part; in some degree; not wholly",
       "level": 3
     },
@@ -8307,7 +8307,7 @@
     {
       "id": "t1187",
       "word": "smartphone",
-      "translation": "",
+      "translation": "スマートフォン",
       "definition": "a mobile phone with advanced features",
       "level": 3
     },
@@ -8482,7 +8482,7 @@
     {
       "id": "t1212",
       "word": "by-law",
-      "translation": "",
+      "translation": "内部規則",
       "definition": "a law or rule made by organization that only applies to its group or region",
       "level": 3
     },
@@ -8671,7 +8671,7 @@
     {
       "id": "t1239",
       "word": "sunscreen",
-      "translation": "",
+      "translation": "日焼け止め",
       "definition": "a cream spread on the skin that protects your skin from the sun",
       "level": 3
     },
@@ -8748,7 +8748,7 @@
     {
       "id": "t1250",
       "word": "timeline",
-      "translation": "",
+      "translation": "タイムライン",
       "definition": "a series of related events arranged in the order they happen, and displayed in a row",
       "level": 3
     },
@@ -8811,7 +8811,7 @@
     {
       "id": "t1259",
       "word": "videoconference",
-      "translation": "",
+      "translation": "ビデオ会議",
       "definition": "meeting carried out over the internet",
       "level": 3
     }

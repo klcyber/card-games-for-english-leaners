@@ -30,6 +30,12 @@ def clean_jp(s):
         result += ch
     return result.strip() if result.strip() else primary
 
+FALLBACK_JP_PATH = os.path.join(os.path.dirname(__file__), '..', 'scripts', 'toeic_jp_fallback.json')
+fallback_jp = {}
+if os.path.exists(FALLBACK_JP_PATH):
+    with open(FALLBACK_JP_PATH, encoding='utf-8') as f:
+        fallback_jp = json.load(f)
+
 conn = sqlite3.connect('/tmp/tsl_extract/collection.anki2')
 rows = conn.execute('SELECT flds FROM notes').fetchall()
 conn.close()
@@ -42,6 +48,8 @@ for (flds,) in rows:
     rank = int(p[2]) if len(p) > 2 and p[2].strip().isdigit() else 9999
     defn = clean(p[4]) if len(p) > 4 else ''
     jp   = clean_jp(p[5]) if len(p) > 5 else ''
+    if not jp and word in fallback_jp:
+        jp = fallback_jp[word]
     if not word:
         continue
     entries.append({'word': word, 'rank': rank, 'definition': defn, 'translation': jp})
