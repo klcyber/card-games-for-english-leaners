@@ -666,7 +666,7 @@ socket.on('hand-update', ({ hand, newCardId, discarded, takenCardId }) => {
           myHand = hand;
           prevHandIds = new Set(hand.map(c => c.id));
           renderMyHand();
-        }, 700);
+        }, 1500);
         return;
       }
     }
