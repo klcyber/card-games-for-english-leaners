@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英単語カードゲーム - ルーム</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ─── ロビー画面 ─── -->
+<div id="screen-lobby" class="screen active">
+  <header class="room-header">
+    <div>
+      <span class="room-code-label">ルームコード</span>
+      <span id="room-code-display" class="room-code">----</span>
+      <button class="btn-copy" id="btn-copy-code" title="コピー">📋</button>
+    </div>
+    <span id="host-badge" class="badge badge-host" style="display:none">ホスト</span>
+  </header>
+
+  <div class="two-col">
+    <!-- 参加者リスト -->
+    <div class="card-box">
+      <h3>参加者 <span id="player-count">(0人)</span></h3>
+      <ul id="player-list" class="player-list"></ul>
+    </div>
+
+    <!-- 設定パネル（ホストのみ編集可） -->
+    <div class="card-box">
+      <h3>ゲーム設定</h3>
+
+      <label>カテゴリ</label>
+      <select id="setting-category">
+        <option value="toeic">TOEIC</option>
+        <option value="toefl">TOEFL</option>
+        <option value="daily">日常英会話</option>
+        <option value="grammar">重要構文</option>
+        <option value="custom">カスタム（CSV）</option>
+      </select>
+
+      <div id="csv-upload-area" style="display:none">
+        <label>CSVファイル（Term,Definition 形式）</label>
+        <input type="file" id="csv-file" accept=".csv,.txt">
+        <p class="hint">Quizlet のエクスポートCSVが使えます</p>
+        <p id="csv-status" class="hint"></p>
+      </div>
+
+      <label>カードパターン</label>
+      <div class="radio-group">
+        <label><input type="radio" name="pattern" value="jp" checked> 英語 ＋ 日本語訳</label>
+        <label><input type="radio" name="pattern" value="en"> 英語 ＋ 英語の意味</label>
+      </div>
+
+      <label>ゲーム</label>
+      <div class="radio-group">
+        <label><input type="radio" name="game" value="concentration" checked> 神経衰弱</label>
+        <label><input type="radio" name="game" value="oldmaid"> ババ抜き</label>
+      </div>
+
+      <label>ペア数: <span id="pair-count-label">15</span></label>
+      <input type="range" id="setting-pairs" min="10" max="25" value="15">
+
+      <button class="btn-primary" id="btn-start" style="display:none">ゲームを開始</button>
+      <p id="start-error" class="error-msg"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ─── 神経衰弱 ─── -->
+<div id="screen-concentration" class="screen">
+  <header class="game-header">
+    <div>
+      <span class="game-title">神経衰弱</span>
+      <span id="conc-turn-label" class="turn-label"></span>
+    </div>
+    <div id="conc-scores" class="score-bar"></div>
+  </header>
+  <div id="conc-board" class="card-grid"></div>
+</div>
+
+<!-- ─── ババ抜き ─── -->
+<div id="screen-oldmaid" class="screen">
+  <header class="game-header">
+    <div>
+      <span class="game-title">ババ抜き</span>
+      <span id="om-turn-label" class="turn-label"></span>
+    </div>
+  </header>
+
+  <div id="om-opponents" class="opponents-row"></div>
+
+  <div class="card-box my-hand-box">
+    <h3>あなたの手札 <span id="om-my-count"></span></h3>
+    <div id="om-my-hand" class="hand-row"></div>
+  </div>
+
+  <div id="om-discard-bar" style="display:none;padding:12px 16px;background:rgba(255,255,255,0.06);border-top:1px solid rgba(255,255,255,0.1)">
+    <p id="om-discard-error" style="color:#fca5a5;font-size:0.85rem;min-height:18px;margin-bottom:8px"></p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button id="btn-discard-pair" style="flex:1;min-width:120px;padding:10px 16px;border-radius:10px;border:none;background:linear-gradient(135deg,#d4af37,#a07c10);color:#1c0800;font-weight:800;font-size:0.95rem;cursor:pointer;opacity:0.4;pointer-events:none">ペアを捨てる</button>
+      <button id="btn-pass-turn" style="flex:1;min-width:120px;padding:10px 16px;border-radius:10px;border:1.5px solid rgba(255,255,255,0.3);background:transparent;color:#d1fae5;font-weight:700;font-size:0.95rem;cursor:pointer">捨てない（次へ）</button>
+    </div>
+  </div>
+
+  <div id="om-draw-area" class="draw-area" style="display:none">
+    <p>👆 上の相手の手札から1枚引いてください</p>
+  </div>
+</div>
+
+<!-- ─── 結果画面 ─── -->
+<div id="screen-result" class="screen">
+  <div class="result-container">
+    <h2 id="result-title">ゲーム終了！</h2>
+    <div id="result-body"></div>
+    <button class="btn-primary" id="btn-restart" style="display:none">もう一度プレイ</button>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/room.js"></script>
+<script src="/js/concentration.js"></script>
+<script src="/js/oldmaid.js"></script>
+</body>
+</html>
