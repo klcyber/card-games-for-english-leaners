@@ -607,6 +607,19 @@ input[type="range"] {
 }
 #screen-concentration .game-title { color: #e8f0ff; font-size: 1.15rem; }
 #screen-concentration .btn-back { border-color: rgba(255,255,255,0.18); color: #8aa4cc; background: none; }
+.btn-end-game {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(248,113,113,0.5);
+  background: rgba(239,68,68,0.15);
+  color: #fca5a5;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.btn-end-game:hover { background: rgba(239,68,68,0.3); }
 #screen-concentration .turn-label { background: rgba(255,255,255,0.08); color: #a0b8d8; border: 1px solid rgba(255,255,255,0.1); }
 #screen-concentration .turn-label.my-turn { background: #065f46; color: #6ee7b7; border-color: #059669; font-weight: 800; }
 #screen-concentration .score-chip { background: rgba(255,255,255,0.08); color: #94b4d4; border: 1px solid rgba(255,255,255,0.1); }

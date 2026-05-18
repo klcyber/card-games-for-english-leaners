@@ -39,6 +39,10 @@ const strings = {
     drawnPrompt: '🃏 Card drawn! Discard a pair?',
     drawAreaMsg: '👆 Tap a card from the glowing opponent',
     btnReturnRoom: '🏠 Return to Room',
+    btnEndGame: 'End Game',
+    confirmEndGame: 'End the game and show scores?',
+    zoneWord: 'English',
+    zoneAnswer: 'Japanese',
     myTurn: '🎯 Your turn!',
     theirTurn: n => `${n}'s turn`,
     dealing: 'Discard your pairs!',
@@ -91,6 +95,10 @@ const strings = {
     drawnPrompt: '🃏 引きました！捨てますか？',
     drawAreaMsg: '👆 光っている相手の手札から1枚引いてください',
     btnReturnRoom: '🏠 ルームに戻る',
+    btnEndGame: '終了',
+    confirmEndGame: 'ゲームを終了してスコアを表示しますか？',
+    zoneWord: '英単語',
+    zoneAnswer: '日本語',
     myTurn: '🎯 あなたのターン！',
     theirTurn: n => `${n} のターン`,
     dealing: 'ペアを全て捨てよう！',
@@ -540,6 +548,13 @@ function parseCSV(text) {
 // Start game
 document.getElementById('btn-start').addEventListener('click', () => {
   socket.emit('start-game');
+});
+
+// End game button (concentration only)
+document.getElementById('btn-conc-end').addEventListener('click', () => {
+  if (confirm(t('confirmEndGame'))) {
+    socket.emit('end-concentration');
+  }
 });
 
 // Home buttons during game

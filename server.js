@@ -141,13 +141,14 @@ function handleFlipCard(room, playerId, cardId) {
         b.matched = true;
         g.scores[playerId] = (g.scores[playerId] || 0) + 1;
         g.flipped = [];
-        // 連続取得カウント（最大2ペアでターンチェンジ）
+        const isBot = room.players.find(p => p.id === playerId)?.isBot;
         if (!g.streak) g.streak = {};
-        g.streak[playerId] = (g.streak[playerId] || 0) + 1;
+        g.streak[playerId] = isBot ? (g.streak[playerId] || 0) + 1 : 0;
         if (g.cards.every(c => c.matched)) {
           g.phase = 'finished';
           io.to(room.code).emit('game-over', buildConcentrationResult(room));
-        } else if (g.streak[playerId] >= 2) {
+        } else if (isBot && g.streak[playerId] >= 2) {
+          // CPUは2ペア連続でターンチェンジ
           g.streak[playerId] = 0;
           g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
           io.to(room.code).emit('game-state', gameStatePayload(room));
@@ -643,6 +644,14 @@ io.on('connection', socket => {
 
     io.to(room.code).emit('game-state', gameStatePayload(room));
     socket.emit('hand-update', { hand: g.hands[socket.id], discarded: [card1, card2] });
+  });
+
+  socket.on('end-concentration', () => {
+    const room = rooms[socket.data.roomCode];
+    if (!room || !room.game || room.game.type !== 'concentration') return;
+    if (room.game.phase === 'finished') return;
+    room.game.phase = 'finished';
+    io.to(room.code).emit('game-over', buildConcentrationResult(room));
   });
 
   socket.on('restart-game', () => {
