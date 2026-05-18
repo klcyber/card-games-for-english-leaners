@@ -331,7 +331,7 @@ function botConcFlip(room, bot) {
   if (!g.botMemory[bot.id]) g.botMemory[bot.id] = {};
   const mem = g.botMemory[bot.id];
 
-  const HIT_RATE = 0.72; // 記憶したペアを使う確率（高すぎず低すぎず）
+  const HIT_RATE = 0.50; // 記憶したペアを使う確率
 
   const faceDown = g.cards.filter(c => !c.faceUp && !c.matched);
   const faceDownIds = new Set(faceDown.map(c => c.id));
