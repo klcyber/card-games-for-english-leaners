@@ -623,10 +623,7 @@ function setCardSize(pairCount) {
   const gap = 8;
   const available = window.innerHeight - headerH - zoneLabelH - padding;
 
-  // ゾーン幅から列数を推定
-  const zoneWidth = (window.innerWidth - 40) / 2;
-  const minCardW = window.innerWidth <= 640 ? 80 : 90;
-  const cols = Math.max(1, Math.floor(zoneWidth / minCardW));
+  const cols = window.innerWidth <= 640 ? 2 : 4;
   const rows = Math.ceil(pairCount / cols);
 
   const h = Math.floor((available - rows * gap) / rows);
