@@ -595,34 +595,38 @@ function renderConcentration(state) {
     .map(s => `<span class="score-chip${s.id === socket.id ? ' me' : ''}">${s.isBot ? '🤖 ' : ''}${esc(s.name)}: ${s.score}</span>`)
     .join('');
 
+  // 1枚だけ表向きなら同じゾーンをロック
+  const faceUpUnmatched = state.cards.filter(c => c.faceUp && !c.matched);
+  const lockedZone = faceUpUnmatched.length === 1 ? faceUpUnmatched[0].type : null;
+
   const wordCards   = state.cards.filter(c => c.type === 'word');
   const answerCards = state.cards.filter(c => c.type === 'answer');
-  const wordsGrid   = document.getElementById('conc-words');
-  const answersGrid = document.getElementById('conc-answers');
 
-  function syncGrid(grid, cards) {
-    if (grid.children.length !== cards.length) {
-      grid.innerHTML = '';
-      cards.forEach(card => grid.appendChild(buildFlipCard(card)));
-    } else {
-      cards.forEach(card => {
-        const el = grid.querySelector(`[data-card-id="${card.id}"]`);
-        if (el) updateFlipCard(el, card, isMyTurn);
-      });
-    }
+  renderZone(document.getElementById('conc-words'),   wordCards,   isMyTurn, lockedZone);
+  renderZone(document.getElementById('conc-answers'), answerCards, isMyTurn, lockedZone);
+
+  setCardSize(wordCards.length);
+}
+
+function renderZone(grid, cards, isMyTurn, lockedZone) {
+  if (grid.children.length !== cards.length) {
+    grid.innerHTML = '';
+    cards.forEach(card => grid.appendChild(buildFlipCard(card)));
+  } else {
+    cards.forEach((card, i) => updateFlipCard(grid.children[i], card, isMyTurn, lockedZone));
   }
+}
 
-  syncGrid(wordsGrid, wordCards);
-  syncGrid(answersGrid, answerCards);
-
-  // 画面に収まるようカード高さを動的計算
-  const perZone = wordCards.length;
-  if (perZone > 0) {
-    const available = window.innerHeight - 130;
-    const h = Math.floor((available - perZone * 8) / perZone);
-    const clamped = Math.max(48, Math.min(h, 100));
-    document.documentElement.style.setProperty('--conc-card-h', `${clamped}px`);
+function setCardSize(pairCount) {
+  if (window.innerWidth > 640) {
+    document.documentElement.style.removeProperty('--conc-card-h');
+    return;
   }
+  const header = document.querySelector('#screen-concentration .game-header');
+  const headerH = header ? header.offsetHeight : 64;
+  const available = window.innerHeight - headerH - 36 - 16 - pairCount * 6;
+  const h = Math.floor(available / pairCount);
+  document.documentElement.style.setProperty('--conc-card-h', Math.max(52, Math.min(100, h)) + 'px');
 }
 
 function buildFlipCard(card) {
@@ -633,23 +637,26 @@ function buildFlipCard(card) {
     <div class="flip-card-inner">
       <div class="flip-card-front"></div>
       <div class="flip-card-back">
+        <span class="flip-card-type">${card.type === 'word' ? (currentLang === 'ja' ? '単語' : 'Word') : (currentLang === 'ja' ? '意味' : 'Meaning')}</span>
         <span class="flip-card-content">${esc(card.content)}</span>
       </div>
     </div>`;
-  // クリックは外枠(.flip-card)のみが受け取る。子要素は pointer-events:none
   el.addEventListener('click', () => {
     if (el.classList.contains('not-my-turn') ||
         el.classList.contains('matched') ||
-        el.classList.contains('face-up')) return;
+        el.classList.contains('face-up') ||
+        el.classList.contains('zone-locked')) return;
     socket.emit('flip-card', { cardId: card.id });
   });
   return el;
 }
 
-function updateFlipCard(el, card, isMyTurn) {
-  el.classList.toggle('face-up', card.faceUp || card.matched);
-  el.classList.toggle('matched', card.matched);
-  el.classList.toggle('not-my-turn', !isMyTurn || card.faceUp || card.matched);
+function updateFlipCard(el, card, isMyTurn, lockedZone) {
+  const locked = lockedZone !== null && card.type === lockedZone && !card.faceUp && !card.matched;
+  el.classList.toggle('face-up',     card.faceUp || card.matched);
+  el.classList.toggle('matched',     card.matched);
+  el.classList.toggle('zone-locked', locked);
+  el.classList.toggle('not-my-turn', !isMyTurn || card.faceUp || card.matched || locked);
   const content = el.querySelector('.flip-card-content');
   if (content) content.textContent = card.content;
 }
