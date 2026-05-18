@@ -300,9 +300,10 @@ input[type="range"] {
   align-items: start;
 }
 .conc-zone .card-grid {
-  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  grid-template-columns: 1fr;
   padding: 8px;
   max-width: none;
+  gap: 6px;
 }
 .zone-label {
   text-align: center;
@@ -316,13 +317,12 @@ input[type="range"] {
 
 @media (max-width: 640px) {
   .conc-board {
-    gap: 8px;
-    padding: 8px;
-  }
-  .conc-zone .card-grid {
-    grid-template-columns: repeat(3, 1fr);
     gap: 6px;
     padding: 6px;
+  }
+  .conc-zone .card-grid {
+    gap: 4px;
+    padding: 4px;
   }
   #screen-concentration .flip-card-back {
     font-size: 0.65rem;

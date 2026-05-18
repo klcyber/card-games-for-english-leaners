@@ -43,7 +43,7 @@ const strings = {
     theirTurn: n => `${n}'s turn`,
     dealing: 'Discard your pairs!',
     hintNone: '💡 No pairs',
-    concTitle: '🎉 Concentration — Game Over!',
+    concTitle: '🎉 Results',
     oldTitle: '🎉 Game Over!',
     oldLoser: "😢 You're holding the Joker!",
     pairUnit: 'pairs',
@@ -95,7 +95,7 @@ const strings = {
     theirTurn: n => `${n} のターン`,
     dealing: 'ペアを全て捨てよう！',
     hintNone: '💡 ペアなし',
-    concTitle: '🎉 神経衰弱 終了！',
+    concTitle: '🎉 結果',
     oldTitle: '🎉 ゲーム終了！',
     oldLoser: '😢 あなたがジョーカーを引きました！',
     pairUnit: 'ペア',
@@ -595,19 +595,34 @@ function renderConcentration(state) {
     .map(s => `<span class="score-chip${s.id === socket.id ? ' me' : ''}">${s.isBot ? '🤖 ' : ''}${esc(s.name)}: ${s.score}</span>`)
     .join('');
 
-  const board = document.getElementById('conc-board');
-  if (board.children.length !== state.cards.length) {
-    board.innerHTML = '';
-    state.cards.forEach(card => board.appendChild(buildFlipCard(card)));
-  } else {
-    state.cards.forEach((card, i) => updateFlipCard(board.children[i], card, isMyTurn));
+  const wordCards   = state.cards.filter(c => c.type === 'word');
+  const answerCards = state.cards.filter(c => c.type === 'answer');
+  const wordsGrid   = document.getElementById('conc-words');
+  const answersGrid = document.getElementById('conc-answers');
+
+  function syncGrid(grid, cards) {
+    if (grid.children.length !== cards.length) {
+      grid.innerHTML = '';
+      cards.forEach(card => grid.appendChild(buildFlipCard(card)));
+    } else {
+      cards.forEach(card => {
+        const el = grid.querySelector(`[data-card-id="${card.id}"]`);
+        if (el) updateFlipCard(el, card, isMyTurn);
+      });
+    }
   }
 
-  // Update click availability
-  board.querySelectorAll('.flip-card').forEach((el, i) => {
-    const card = state.cards[i];
-    el.classList.toggle('not-my-turn', !isMyTurn || card.faceUp || card.matched);
-  });
+  syncGrid(wordsGrid, wordCards);
+  syncGrid(answersGrid, answerCards);
+
+  // 画面に収まるようカード高さを動的計算
+  const perZone = wordCards.length;
+  if (perZone > 0) {
+    const available = window.innerHeight - 130;
+    const h = Math.floor((available - perZone * 8) / perZone);
+    const clamped = Math.max(48, Math.min(h, 100));
+    document.documentElement.style.setProperty('--conc-card-h', `${clamped}px`);
+  }
 }
 
 function buildFlipCard(card) {
