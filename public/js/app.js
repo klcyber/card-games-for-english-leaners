@@ -635,6 +635,7 @@ function buildFlipCard(card) {
   el.dataset.cardId = card.id;
   el.innerHTML = `
     <div class="flip-card-inner">
+      <div class="flip-card-front"></div>
       <div class="flip-card-back">
         <span class="flip-card-content">${esc(card.content)}</span>
       </div>
