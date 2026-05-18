@@ -340,6 +340,7 @@ input[type="range"] {
   position: relative;
   border-radius: 10px;
   box-shadow: var(--shadow);
+  perspective: 600px;
 }
 .flip-card.not-my-turn { cursor: default; }
 
