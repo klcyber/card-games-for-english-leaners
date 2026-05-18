@@ -616,15 +616,21 @@ function renderZone(grid, cards, isMyTurn, lockedZone) {
 }
 
 function setCardSize(pairCount) {
-  if (window.innerWidth > 640) {
-    document.documentElement.style.removeProperty('--conc-card-h');
-    return;
-  }
   const header = document.querySelector('#screen-concentration .game-header');
-  const headerH = header ? header.offsetHeight : 64;
-  const available = window.innerHeight - headerH - 36 - 16 - pairCount * 6;
-  const h = Math.floor(available / pairCount);
-  document.documentElement.style.setProperty('--conc-card-h', Math.max(52, Math.min(100, h)) + 'px');
+  const headerH = header ? header.offsetHeight : 60;
+  const zoneLabelH = 36;
+  const padding = 24;
+  const gap = 8;
+  const available = window.innerHeight - headerH - zoneLabelH - padding;
+
+  // ゾーン幅から列数を推定
+  const zoneWidth = (window.innerWidth - 40) / 2;
+  const minCardW = window.innerWidth <= 640 ? 80 : 90;
+  const cols = Math.max(1, Math.floor(zoneWidth / minCardW));
+  const rows = Math.ceil(pairCount / cols);
+
+  const h = Math.floor((available - rows * gap) / rows);
+  document.documentElement.style.setProperty('--conc-card-h', Math.max(52, Math.min(120, h)) + 'px');
 }
 
 function buildFlipCard(card) {
