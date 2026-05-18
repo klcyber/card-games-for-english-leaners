@@ -315,7 +315,7 @@ function scheduleBotAction(room) {
   if (g.type === 'concentration') {
     const cur = room.players[g.currentPlayerIndex];
     if (!cur?.isBot) return;
-    const delay = 1800 + Math.floor(Math.random() * 1200); // 1.8〜3.0秒
+    const delay = 500 + Math.floor(Math.random() * 400); // 0.5〜0.9秒
     setTimeout(() => {
       if (rooms[room.code]?.game !== g) return;
       botConcFlip(room, cur);
