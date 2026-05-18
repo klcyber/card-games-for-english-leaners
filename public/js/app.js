@@ -545,8 +545,7 @@ document.getElementById('btn-start').addEventListener('click', () => {
 // Home buttons during game
 ['conc-home', 'om-home'].forEach(id => {
   document.getElementById(id).addEventListener('click', () => {
-    socket.emit('leave-room');
-    showScreen('top');
+    socket.emit('restart-game');
   });
 });
 
@@ -612,9 +611,8 @@ function renderZone(grid, cards, isMyTurn, lockedZone) {
   if (grid.children.length !== cards.length) {
     grid.innerHTML = '';
     cards.forEach(card => grid.appendChild(buildFlipCard(card)));
-  } else {
-    cards.forEach((card, i) => updateFlipCard(grid.children[i], card, isMyTurn, lockedZone));
   }
+  cards.forEach((card, i) => updateFlipCard(grid.children[i], card, isMyTurn, lockedZone));
 }
 
 function setCardSize(pairCount) {
