@@ -331,17 +331,19 @@ function botConcFlip(room, bot) {
   if (!g.botMemory[bot.id]) g.botMemory[bot.id] = {};
   const mem = g.botMemory[bot.id];
 
+  const HIT_RATE = 0.72; // 記憶したペアを使う確率（高すぎず低すぎず）
+
   const faceDown = g.cards.filter(c => !c.faceUp && !c.matched);
   const faceDownIds = new Set(faceDown.map(c => c.id));
 
-  // 記憶から完全なペア（word+answer両方知ってる）を探す
+  // 記憶から完全なペアを探す
   const byWord = {};
   for (const [id, info] of Object.entries(mem)) {
     if (!faceDownIds.has(id)) continue;
     if (!byWord[info.wordId]) byWord[info.wordId] = {};
     byWord[info.wordId][info.type] = id;
   }
-  const knownPair = Object.values(byWord).find(p => p.word && p.answer);
+  const knownPairs = Object.values(byWord).filter(p => p.word && p.answer);
 
   const pickRandom = (type) => {
     const pool = faceDown.filter(c => c.type === type);
@@ -352,19 +354,19 @@ function botConcFlip(room, bot) {
     return pool.length ? pool[Math.floor(Math.random() * pool.length)] : pickRandom(type);
   };
 
-  let firstId, secondId;
+  let firstId, secondId = null;
 
-  if (knownPair) {
-    // 知っているペアを確実に取る
-    firstId  = knownPair.word;
-    secondId = knownPair.answer;
+  if (knownPairs.length > 0 && Math.random() < HIT_RATE) {
+    // 知っているペアを使う（確率的に）
+    const pair = knownPairs[Math.floor(Math.random() * knownPairs.length)];
+    firstId  = pair.word;
+    secondId = pair.answer;
   } else {
-    // 知らないカードをめくって情報収集
+    // ランダムにめくって情報収集
     const startType = Math.random() < 0.5 ? 'word' : 'answer';
     const c1 = pickUnknown(startType) || pickUnknown(startType === 'word' ? 'answer' : 'word');
     if (!c1) return;
     firstId = c1.id;
-    secondId = null; // 1枚めくってから記憶を確認して決める
   }
 
   handleFlipCard(room, bot.id, firstId);
@@ -376,22 +378,24 @@ function botConcFlip(room, bot) {
     let c2Id = secondId;
 
     if (!c2Id) {
-      // 1枚目をめくった後、記憶にそのペアがあれば使う
-      const flippedCard = g.flipped[0];
-      if (flippedCard) {
-        const oppositeType = flippedCard.type === 'word' ? 'answer' : 'word';
+      // 1枚めくった後、そのカードのペアを記憶していれば使う（これも確率的に）
+      const flipped = g.flipped[0];
+      if (flipped) {
+        const oppType = flipped.type === 'word' ? 'answer' : 'word';
         const knownMatch = Object.entries(mem).find(([id, info]) =>
-          info.wordId === flippedCard.wordId && info.type === oppositeType && faceDownIds.has(id)
+          info.wordId === flipped.wordId && info.type === oppType && faceDownIds.has(id)
         );
-        c2Id = knownMatch
-          ? knownMatch[0]
-          : (pickUnknown(oppositeType) || pickRandom(oppositeType))?.id;
+        if (knownMatch && Math.random() < HIT_RATE) {
+          c2Id = knownMatch[0];
+        } else {
+          c2Id = (pickUnknown(oppType) || pickRandom(oppType))?.id;
+        }
       }
     }
 
     if (!c2Id) return;
     handleFlipCard(room, bot.id, c2Id);
-  }, 1000 + Math.floor(Math.random() * 800));
+  }, 1200 + Math.floor(Math.random() * 1000));
 }
 
 function botOldMaidDeal(room) {
