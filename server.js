@@ -121,6 +121,9 @@ function handleFlipCard(room, playerId, cardId) {
   }
   if (card.faceUp) return;
 
+  // ゾーンロック: 1枚目と同じゾーンは選べない
+  if (g.flipped.length === 1 && card.type === g.flipped[0].type) return;
+
   card.faceUp = true;
   g.flipped.push(card);
   io.to(room.code).emit('game-state', gameStatePayload(room));
