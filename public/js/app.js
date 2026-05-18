@@ -635,9 +635,7 @@ function buildFlipCard(card) {
   el.dataset.cardId = card.id;
   el.innerHTML = `
     <div class="flip-card-inner">
-      <div class="flip-card-front"></div>
       <div class="flip-card-back">
-        <span class="flip-card-type">${card.type === 'word' ? (currentLang === 'ja' ? '単語' : 'Word') : (currentLang === 'ja' ? '意味' : 'Meaning')}</span>
         <span class="flip-card-content">${esc(card.content)}</span>
       </div>
     </div>`;
