@@ -121,6 +121,14 @@ function handleFlipCard(room, playerId, cardId) {
 
   card.faceUp = true;
   g.flipped.push(card);
+
+  // 全ボットの記憶を更新（誰のターンでも見えたカードは覚える）
+  if (!g.botMemory) g.botMemory = {};
+  room.players.filter(p => p.isBot).forEach(bot => {
+    if (!g.botMemory[bot.id]) g.botMemory[bot.id] = {};
+    g.botMemory[bot.id][card.id] = { type: card.type, wordId: card.wordId };
+  });
+
   io.to(room.code).emit('game-state', gameStatePayload(room));
 
   if (g.flipped.length === 2) {
@@ -319,25 +327,71 @@ function botConcFlip(room, bot) {
   if (!g || g.phase !== 'playing') return;
   if (room.players[g.currentPlayerIndex]?.id !== bot.id) return;
 
-  const pickFrom = (type) => {
-    const avail = g.cards.filter(c => !c.faceUp && !c.matched && c.type === type);
-    return avail.length ? avail[Math.floor(Math.random() * avail.length)] : null;
+  if (!g.botMemory) g.botMemory = {};
+  if (!g.botMemory[bot.id]) g.botMemory[bot.id] = {};
+  const mem = g.botMemory[bot.id];
+
+  const faceDown = g.cards.filter(c => !c.faceUp && !c.matched);
+  const faceDownIds = new Set(faceDown.map(c => c.id));
+
+  // 記憶から完全なペア（word+answer両方知ってる）を探す
+  const byWord = {};
+  for (const [id, info] of Object.entries(mem)) {
+    if (!faceDownIds.has(id)) continue;
+    if (!byWord[info.wordId]) byWord[info.wordId] = {};
+    byWord[info.wordId][info.type] = id;
+  }
+  const knownPair = Object.values(byWord).find(p => p.word && p.answer);
+
+  const pickRandom = (type) => {
+    const pool = faceDown.filter(c => c.type === type);
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : null;
+  };
+  const pickUnknown = (type) => {
+    const pool = faceDown.filter(c => c.type === type && !mem[c.id]);
+    return pool.length ? pool[Math.floor(Math.random() * pool.length)] : pickRandom(type);
   };
 
-  // 1枚目はどちらのゾーンからでも可
-  const startType = Math.random() < 0.5 ? 'word' : 'answer';
-  const c1 = pickFrom(startType) || pickFrom(startType === 'word' ? 'answer' : 'word');
-  if (!c1) return;
-  handleFlipCard(room, bot.id, c1.id);
+  let firstId, secondId;
 
-  // 2枚目は必ず逆ゾーンから選ぶ
+  if (knownPair) {
+    // 知っているペアを確実に取る
+    firstId  = knownPair.word;
+    secondId = knownPair.answer;
+  } else {
+    // 知らないカードをめくって情報収集
+    const startType = Math.random() < 0.5 ? 'word' : 'answer';
+    const c1 = pickUnknown(startType) || pickUnknown(startType === 'word' ? 'answer' : 'word');
+    if (!c1) return;
+    firstId = c1.id;
+    secondId = null; // 1枚めくってから記憶を確認して決める
+  }
+
+  handleFlipCard(room, bot.id, firstId);
+
   setTimeout(() => {
     if (rooms[room.code]?.game !== g) return;
     if (room.players[g.currentPlayerIndex]?.id !== bot.id) return;
-    const c2 = pickFrom(c1.type === 'word' ? 'answer' : 'word');
-    if (!c2) return;
-    handleFlipCard(room, bot.id, c2.id);
-  }, 1500 + Math.floor(Math.random() * 1000));
+
+    let c2Id = secondId;
+
+    if (!c2Id) {
+      // 1枚目をめくった後、記憶にそのペアがあれば使う
+      const flippedCard = g.flipped[0];
+      if (flippedCard) {
+        const oppositeType = flippedCard.type === 'word' ? 'answer' : 'word';
+        const knownMatch = Object.entries(mem).find(([id, info]) =>
+          info.wordId === flippedCard.wordId && info.type === oppositeType && faceDownIds.has(id)
+        );
+        c2Id = knownMatch
+          ? knownMatch[0]
+          : (pickUnknown(oppositeType) || pickRandom(oppositeType))?.id;
+      }
+    }
+
+    if (!c2Id) return;
+    handleFlipCard(room, bot.id, c2Id);
+  }, 1000 + Math.floor(Math.random() * 800));
 }
 
 function botOldMaidDeal(room) {
