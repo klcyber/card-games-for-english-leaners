@@ -141,9 +141,17 @@ function handleFlipCard(room, playerId, cardId) {
         b.matched = true;
         g.scores[playerId] = (g.scores[playerId] || 0) + 1;
         g.flipped = [];
+        // 連続取得カウント（最大2ペアでターンチェンジ）
+        if (!g.streak) g.streak = {};
+        g.streak[playerId] = (g.streak[playerId] || 0) + 1;
         if (g.cards.every(c => c.matched)) {
           g.phase = 'finished';
           io.to(room.code).emit('game-over', buildConcentrationResult(room));
+        } else if (g.streak[playerId] >= 2) {
+          g.streak[playerId] = 0;
+          g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+          io.to(room.code).emit('game-state', gameStatePayload(room));
+          scheduleBotAction(room);
         } else {
           io.to(room.code).emit('game-state', gameStatePayload(room));
           scheduleBotAction(room);
@@ -156,6 +164,8 @@ function handleFlipCard(room, playerId, cardId) {
         a.faceUp = false;
         b.faceUp = false;
         g.flipped = [];
+        if (!g.streak) g.streak = {};
+        g.streak[playerId] = 0;
         g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
         io.to(room.code).emit('game-state', gameStatePayload(room));
         scheduleBotAction(room);
