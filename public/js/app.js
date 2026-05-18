@@ -619,27 +619,19 @@ let _lastPairCount = 0;
 function setCardSize(pairCount) {
   _lastPairCount = pairCount;
   const header = document.querySelector('#screen-concentration .game-header');
-  const headerH = header ? header.offsetHeight : 60;
-  const zoneLabelH = 36;
+  const headerH = (header && header.offsetHeight > 10) ? header.offsetHeight : 56;
   const gap = 8;
-  const outerPad = 28;
-  const availH = window.innerHeight - headerH - zoneLabelH - outerPad;
-  const zoneW = (window.innerWidth - 48) / 2;
-  const minCardH = 52, maxCardH = 130, minCardW = 62;
+  const availH = window.innerHeight - headerH - 36 - 28; // zoneLabel=36, outerPad=28
+  const zoneW = Math.floor((window.innerWidth - 48) / 2);
 
-  let bestCols = 2;
-  for (let c = 2; c <= 10; c++) {
-    if (zoneW / c < minCardW) break;
-    const rows = Math.ceil(pairCount / c);
-    const h = Math.floor((availH - (rows - 1) * gap) / rows);
-    if (h < minCardH) break;
-    bestCols = c;
-  }
+  // 目標カード幅から列数を決定（幅優先）
+  const targetCardW = 120;
+  const cols = Math.max(2, Math.min(8, Math.floor(zoneW / targetCardW)));
 
-  const rows = Math.ceil(pairCount / bestCols);
+  const rows = Math.ceil(pairCount / cols);
   const h = Math.floor((availH - (rows - 1) * gap) / rows);
-  document.documentElement.style.setProperty('--conc-cols', bestCols);
-  document.documentElement.style.setProperty('--conc-card-h', Math.max(minCardH, Math.min(maxCardH, h)) + 'px');
+  document.documentElement.style.setProperty('--conc-cols', cols);
+  document.documentElement.style.setProperty('--conc-card-h', Math.max(48, Math.min(140, h)) + 'px');
 }
 window.addEventListener('resize', () => { if (_lastPairCount) setCardSize(_lastPairCount); });
 
