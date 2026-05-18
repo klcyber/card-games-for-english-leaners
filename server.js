@@ -111,18 +111,13 @@ function handleFlipCard(room, playerId, cardId) {
 
   const card = g.cards.find(c => c.id === cardId);
   if (!card || card.matched) return;
-
-  // 前のターンのミス2枚: タップで裏に戻しつつそのまま今のカードを処理
-  if (g.flipped.length === 2) {
-    g.flipped[0].faceUp = false;
-    g.flipped[1].faceUp = false;
-    g.flipped = [];
-  }
-
   if (card.faceUp) return;
 
   // ゾーンロック: 1枚目と同じゾーンは選べない
   if (g.flipped.length === 1 && card.type === g.flipped[0].type) return;
+
+  // 2枚揃うまで待機中なら弾く
+  if (g.flipped.length >= 2) return;
 
   card.faceUp = true;
   g.flipped.push(card);
@@ -147,10 +142,16 @@ function handleFlipCard(room, playerId, cardId) {
         }
       }, 800);
     } else {
-      // ミス: ターンチェンジ（g.flippedはそのまま残し次のタップで裏返す）
-      g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
-      io.to(room.code).emit('game-state', gameStatePayload(room));
-      scheduleBotAction(room);
+      // ミス: 1.8秒間カードを見せてから自動で裏返してターンチェンジ
+      setTimeout(() => {
+        if (!rooms[room.code] || rooms[room.code].game !== g) return;
+        a.faceUp = false;
+        b.faceUp = false;
+        g.flipped = [];
+        g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+        io.to(room.code).emit('game-state', gameStatePayload(room));
+        scheduleBotAction(room);
+      }, 1800);
     }
   }
 }
