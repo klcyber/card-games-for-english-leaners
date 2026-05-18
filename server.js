@@ -111,18 +111,13 @@ function handleFlipCard(room, playerId, cardId) {
 
   const card = g.cards.find(c => c.id === cardId);
   if (!card || card.matched) return;
-  if (card.faceUp && g.flipped.some(f => f.id === cardId)) return;
-
-  // 前のターンのミス2枚を最初のタップで裏に戻す
-  if (g.flipped.length === 2) {
-    g.flipped[0].faceUp = false;
-    g.flipped[1].faceUp = false;
-    g.flipped = [];
-  }
   if (card.faceUp) return;
 
   // ゾーンロック: 1枚目と同じゾーンは選べない
   if (g.flipped.length === 1 && card.type === g.flipped[0].type) return;
+
+  // 2枚目が来る前に既存2枚がある場合は弾く（安全策）
+  if (g.flipped.length >= 2) return;
 
   card.faceUp = true;
   g.flipped.push(card);
@@ -131,9 +126,9 @@ function handleFlipCard(room, playerId, cardId) {
   if (g.flipped.length === 2) {
     const [a, b] = g.flipped;
     if (a.wordId === b.wordId) {
-      // ペア成立
+      // ペア成立: 0.8秒後に確定
       setTimeout(() => {
-        if (!rooms[room.code]) return;
+        if (!rooms[room.code] || rooms[room.code].game !== g) return;
         a.matched = true;
         b.matched = true;
         g.scores[playerId] = (g.scores[playerId] || 0) + 1;
@@ -143,14 +138,20 @@ function handleFlipCard(room, playerId, cardId) {
           io.to(room.code).emit('game-over', buildConcentrationResult(room));
         } else {
           io.to(room.code).emit('game-state', gameStatePayload(room));
-          scheduleBotAction(room); // 同じプレイヤーが続けてターンを取る
+          scheduleBotAction(room);
         }
       }, 800);
     } else {
-      // ミス — 次のプレイヤーへ
-      g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
-      io.to(room.code).emit('game-state', gameStatePayload(room));
-      scheduleBotAction(room);
+      // ミス: 1.5秒後に自動で裏返してターンチェンジ
+      setTimeout(() => {
+        if (!rooms[room.code] || rooms[room.code].game !== g) return;
+        a.faceUp = false;
+        b.faceUp = false;
+        g.flipped = [];
+        g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+        io.to(room.code).emit('game-state', gameStatePayload(room));
+        scheduleBotAction(room);
+      }, 1500);
     }
   }
 }
