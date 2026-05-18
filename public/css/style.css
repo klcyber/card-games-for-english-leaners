@@ -289,9 +289,52 @@ input[type="range"] {
   margin: 0 auto;
 }
 
+/* ── Two-zone concentration board ── */
+.conc-board {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  max-width: 960px;
+  margin: 0 auto;
+  align-items: start;
+}
+.conc-zone .card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  padding: 8px;
+  max-width: none;
+}
+.zone-label {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #8aa4cc;
+  padding: 6px 0 4px;
+  border-bottom: 1px solid rgba(100,160,255,0.2);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 640px) {
+  .conc-board {
+    gap: 8px;
+    padding: 8px;
+  }
+  .conc-zone .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 6px;
+  }
+  #screen-concentration .flip-card-back {
+    font-size: 0.65rem;
+  }
+  #screen-concentration .flip-card-type {
+    font-size: 0.5rem;
+  }
+}
+
 /* ── Flip card ── */
 .flip-card {
-  height: 100px;
+  height: var(--conc-card-h, 100px);
   cursor: pointer;
   position: relative;
   border-radius: 10px;
@@ -374,6 +417,10 @@ input[type="range"] {
   overflow: hidden;
   flex-direction: column;
   gap: 4px;
+}
+.flip-card.zone-locked {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 .flip-card.matched .flip-card-front { display: none; }
 .flip-card.matched .flip-card-back {
@@ -543,6 +590,7 @@ input[type="range"] {
 .rank-num { font-size: 1.4rem; width: 32px; text-align: center; }
 .rank-name { flex: 1; font-weight: 700; }
 .rank-score { color: var(--muted); font-size: 0.9rem; }
+.rank-score strong { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
 .rank-1 { background: #fef9c3; }
 .rank-loser { background: #fee2e2; }
 
