@@ -315,20 +315,22 @@ function botConcFlip(room, bot) {
   if (!g || g.phase !== 'playing') return;
   if (room.players[g.currentPlayerIndex]?.id !== bot.id) return;
 
-  const pick = () => {
-    const avail = g.cards.filter(c => !c.faceUp && !c.matched);
+  const pickFrom = (type) => {
+    const avail = g.cards.filter(c => !c.faceUp && !c.matched && c.type === type);
     return avail.length ? avail[Math.floor(Math.random() * avail.length)] : null;
   };
 
-  const c1 = pick();
+  // 1枚目はどちらのゾーンからでも可
+  const startType = Math.random() < 0.5 ? 'word' : 'answer';
+  const c1 = pickFrom(startType) || pickFrom(startType === 'word' ? 'answer' : 'word');
   if (!c1) return;
   handleFlipCard(room, bot.id, c1.id);
 
-  // 2枚目は1.5〜2.5秒後（プレイヤーが1枚目をじっくり見られるように）
+  // 2枚目は必ず逆ゾーンから選ぶ
   setTimeout(() => {
     if (rooms[room.code]?.game !== g) return;
     if (room.players[g.currentPlayerIndex]?.id !== bot.id) return;
-    const c2 = pick();
+    const c2 = pickFrom(c1.type === 'word' ? 'answer' : 'word');
     if (!c2) return;
     handleFlipCard(room, bot.id, c2.id);
   }, 1500 + Math.floor(Math.random() * 1000));

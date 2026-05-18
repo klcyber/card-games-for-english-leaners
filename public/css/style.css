@@ -300,7 +300,7 @@ input[type="range"] {
   align-items: start;
 }
 .conc-zone .card-grid {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(var(--conc-cols, 4), 1fr);
   padding: 8px;
   max-width: none;
   gap: 8px;
@@ -321,7 +321,7 @@ input[type="range"] {
     padding: 6px;
   }
   .conc-zone .card-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(var(--conc-cols, 2), 1fr);
     gap: 5px;
     padding: 5px;
   }

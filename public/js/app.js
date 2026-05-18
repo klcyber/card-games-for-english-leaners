@@ -615,20 +615,33 @@ function renderZone(grid, cards, isMyTurn, lockedZone) {
   cards.forEach((card, i) => updateFlipCard(grid.children[i], card, isMyTurn, lockedZone));
 }
 
+let _lastPairCount = 0;
 function setCardSize(pairCount) {
+  _lastPairCount = pairCount;
   const header = document.querySelector('#screen-concentration .game-header');
   const headerH = header ? header.offsetHeight : 60;
   const zoneLabelH = 36;
-  const padding = 24;
   const gap = 8;
-  const available = window.innerHeight - headerH - zoneLabelH - padding;
+  const outerPad = 28;
+  const availH = window.innerHeight - headerH - zoneLabelH - outerPad;
+  const zoneW = (window.innerWidth - 48) / 2;
+  const minCardH = 52, maxCardH = 130, minCardW = 62;
 
-  const cols = window.innerWidth <= 640 ? 2 : 4;
-  const rows = Math.ceil(pairCount / cols);
+  let bestCols = 2;
+  for (let c = 2; c <= 10; c++) {
+    if (zoneW / c < minCardW) break;
+    const rows = Math.ceil(pairCount / c);
+    const h = Math.floor((availH - (rows - 1) * gap) / rows);
+    if (h < minCardH) break;
+    bestCols = c;
+  }
 
-  const h = Math.floor((available - rows * gap) / rows);
-  document.documentElement.style.setProperty('--conc-card-h', Math.max(52, Math.min(120, h)) + 'px');
+  const rows = Math.ceil(pairCount / bestCols);
+  const h = Math.floor((availH - (rows - 1) * gap) / rows);
+  document.documentElement.style.setProperty('--conc-cols', bestCols);
+  document.documentElement.style.setProperty('--conc-card-h', Math.max(minCardH, Math.min(maxCardH, h)) + 'px');
 }
+window.addEventListener('resize', () => { if (_lastPairCount) setCardSize(_lastPairCount); });
 
 function buildFlipCard(card) {
   const el = document.createElement('div');
