@@ -695,7 +695,9 @@ function setCardSize(pairCount) {
     const headerH = (header && header.offsetHeight > 10) ? header.offsetHeight : 56;
     const gap = 8;
     const availH = window.innerHeight - headerH - 36 - 28;
-    const zoneW = Math.floor((window.innerWidth - 48) / 2);
+    // 実際のゾーン幅をDOMから取得（max-width制約を正しく反映）
+    const zoneEl = document.getElementById('conc-words');
+    const zoneW = zoneEl ? zoneEl.offsetWidth : Math.floor((window.innerWidth - 48) / 2);
 
     const cols = Math.max(2, Math.min(8, Math.floor(zoneW / 120)));
     const rows = Math.ceil(pairCount / cols);
