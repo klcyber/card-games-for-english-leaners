@@ -567,7 +567,9 @@ document.getElementById('btn-start').addEventListener('click', () => {
 
 // End game button (concentration only)
 document.getElementById('btn-conc-sync').addEventListener('click', () => {
-  socket.emit('sync-state');
+  // ソケットを再接続してIDを再同期（詰まった時の復帰）
+  socket.disconnect();
+  socket.connect();
 });
 
 document.getElementById('btn-conc-end').addEventListener('click', () => {
@@ -613,8 +615,16 @@ socket.on('game-start', ({ gameType }) => {
 // ══════════════════════════════════════════════════════════════════════════════
 
 socket.on('game-state', state => {
-  if (state.type === 'concentration') renderConcentration(state);
-  else if (state.type === 'oldmaid') renderOldMaid(state);
+  if (state.type === 'concentration') {
+    // 再接続後にゲーム画面に戻す
+    const current = document.querySelector('.screen.active')?.id;
+    if (current !== 'screen-concentration') showScreen('concentration');
+    renderConcentration(state);
+  } else if (state.type === 'oldmaid') {
+    const current = document.querySelector('.screen.active')?.id;
+    if (current !== 'screen-oldmaid') showScreen('oldmaid');
+    renderOldMaid(state);
+  }
 });
 
 function renderConcentration(state) {
