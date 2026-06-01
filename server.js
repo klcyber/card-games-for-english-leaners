@@ -753,7 +753,17 @@ io.on('connection', socket => {
 
     const removePlayer = () => {
       if (clientId) delete disconnectTimers[clientId];
-      room.players = room.players.filter(p => p.id !== socket.id);
+      const idx = room.players.findIndex(p => p.id === socket.id);
+      if (idx === -1) return;
+
+      // currentPlayerIndex のズレを補正
+      const g = room.game;
+      if (g && g.type === 'concentration' && g.currentPlayerIndex >= idx) {
+        g.currentPlayerIndex = Math.max(0, g.currentPlayerIndex - 1);
+      }
+
+      room.players.splice(idx, 1);
+
       if (room.players.filter(p => !p.isBot).length === 0) {
         delete rooms[code];
         return;
@@ -761,12 +771,37 @@ io.on('connection', socket => {
       if (room.host === socket.id) {
         room.host = room.players.find(p => !p.isBot)?.id ?? room.players[0]?.id;
       }
-      io.to(code).emit('room-state', roomStatePayload(room));
+      if (g && g.phase === 'playing') {
+        // インデックス越境防止
+        g.currentPlayerIndex = g.currentPlayerIndex % room.players.length;
+        io.to(code).emit('game-state', gameStatePayload(room));
+        scheduleBotAction(room);
+      } else {
+        io.to(code).emit('room-state', roomStatePayload(room));
+      }
     };
 
-    // ゲーム中は30秒間プレイヤーを保持して再接続を待つ
+    // ゲーム中は15秒間プレイヤーを保持して再接続を待つ
     if (room.game && room.game.phase === 'playing' && clientId) {
-      disconnectTimers[clientId] = setTimeout(removePlayer, 30000);
+      disconnectTimers[clientId] = setTimeout(removePlayer, 15000);
+
+      // 神経衰弱: 切断したプレイヤーのターンなら5秒後にスキップ
+      const g = room.game;
+      if (g && g.type === 'concentration') {
+        const currentPlayer = room.players[g.currentPlayerIndex];
+        if (currentPlayer && currentPlayer.id === socket.id) {
+          setTimeout(() => {
+            if (!rooms[code] || rooms[code].game !== g || g.phase !== 'playing') return;
+            if (room.players[g.currentPlayerIndex]?.id !== socket.id) return;
+            // フリップ中のカードを戻してターンを進める
+            g.flipped.forEach(c => { c.faceUp = false; });
+            g.flipped = [];
+            g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+            io.to(code).emit('game-state', gameStatePayload(room));
+            scheduleBotAction(room);
+          }, 5000);
+        }
+      }
     } else {
       removePlayer();
     }
