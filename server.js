@@ -334,15 +334,6 @@ function scheduleBotAction(room) {
     } else {
       // 人間のターン: 状態を全員に再送して確実に同期
       io.to(room.code).emit('game-state', gameStatePayload(room));
-      // ウォッチドッグ: g.flippedが詰まっていたら10秒後に強制クリア
-      setTimeout(() => {
-        if (rooms[room.code]?.game !== g || g.phase !== 'playing') return;
-        if (g.flipped.length >= 2) {
-          g.flipped.forEach(c => { c.faceUp = false; });
-          g.flipped = [];
-          io.to(room.code).emit('game-state', gameStatePayload(room));
-        }
-      }, 10000);
     }
 
   } else if (g.type === 'oldmaid' && g.phase === 'playing') {
@@ -598,8 +589,9 @@ io.on('connection', socket => {
     if (clientId && room.game) {
       const existing = room.players.find(p => p.clientId === clientId);
       if (existing) {
+        const oldId = existing.id;
         existing.id = socket.id;
-        if (room.host === existing.id) room.host = socket.id;
+        if (room.host === oldId) room.host = socket.id;
         socket.data.roomCode = upper;
         socket.join(upper);
         socket.emit('game-state', gameStatePayload(room));
@@ -814,9 +806,9 @@ io.on('connection', socket => {
       }
     };
 
-    // ゲーム中は15秒間プレイヤーを保持して再接続を待つ
+    // ゲーム中は5分間プレイヤーを保持して再接続を待つ（学校WiFiの途切れ対策）
     if (room.game && room.game.phase === 'playing' && clientId) {
-      disconnectTimers[clientId] = setTimeout(removePlayer, 15000);
+      disconnectTimers[clientId] = setTimeout(removePlayer, 300000);
 
       // 神経衰弱: 切断したプレイヤーのターンなら5秒後にスキップ
       const g = room.game;

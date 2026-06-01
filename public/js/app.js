@@ -41,6 +41,7 @@ const strings = {
     btnReturnRoom: '🏠 Return to Room',
     btnEndGame: 'End Game',
     confirmEndGame: 'End the game and show scores?',
+    syncFailed: 'Could not reconnect to the game. Return to lobby?',
     zoneWord: 'English',
     zoneAnswer: 'Japanese',
     myTurn: '🎯 Your turn!',
@@ -99,6 +100,7 @@ const strings = {
     btnReturnRoom: '🏠 ルームに戻る',
     btnEndGame: '終了',
     confirmEndGame: 'ゲームを終了してスコアを表示しますか？',
+    syncFailed: 'ゲームに再接続できませんでした。ロビーに戻りますか？',
     zoneWord: '英単語',
     zoneAnswer: '日本語',
     myTurn: '🎯 あなたのターン！',
@@ -568,8 +570,27 @@ document.getElementById('btn-start').addEventListener('click', () => {
 // End game button (concentration only)
 document.getElementById('btn-conc-sync').addEventListener('click', () => {
   // ソケットを再接続してIDを再同期（詰まった時の復帰）
+  const btn = document.getElementById('btn-conc-sync');
+  btn.textContent = '⏳';
+  btn.disabled = true;
+
   socket.disconnect();
   socket.connect();
+
+  // 3秒以内にgame-stateが来なければロビーへ誘導
+  const syncTimeout = setTimeout(() => {
+    btn.textContent = '🔄';
+    btn.disabled = false;
+    if (confirm(t('syncFailed'))) {
+      showScreen('top');
+    }
+  }, 3000);
+
+  socket.once('game-state', () => {
+    clearTimeout(syncTimeout);
+    btn.textContent = '🔄';
+    btn.disabled = false;
+  });
 });
 
 document.getElementById('btn-conc-end').addEventListener('click', () => {
