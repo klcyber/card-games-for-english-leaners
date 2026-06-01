@@ -48,7 +48,7 @@ const strings = {
     dealing: 'Discard your pairs!',
     hintNone: '💡 No pairs',
     concTitle: '🎉 Results',
-    oldTitle: '🎉 Game Over!',
+    oldTitle: '🎉 Results',
     oldLoser: "😢 You're holding the Joker!",
     resultWin: '🎉 Win',
     resultLose: '😢 Lose (Joker)',
@@ -106,7 +106,7 @@ const strings = {
     dealing: 'ペアを全て捨てよう！',
     hintNone: '💡 ペアなし',
     concTitle: '🎉 結果',
-    oldTitle: '🎉 ゲーム終了！',
+    oldTitle: '🎉 結果発表',
     oldLoser: '😢 あなたがジョーカーを引きました！',
     resultWin: '🎉 勝ち',
     resultLose: '😢 負け（ジョーカー）',
@@ -972,10 +972,11 @@ document.getElementById('btn-hint').addEventListener('click', () => {
 
 socket.on('game-over', result => {
   showScreen('result');
+  const medals = ['🥇', '🥈', '🥉'];
 
   if (result.rankings && !result.loser) {
+    // 神経衰弱: スコア順
     document.getElementById('result-title').textContent = t('concTitle');
-    const medals = ['🥇','🥈','🥉'];
     document.getElementById('result-body').innerHTML =
       '<ul class="ranking-list">' +
       result.rankings.map((r, i) => `
@@ -986,9 +987,8 @@ socket.on('game-over', result => {
         </li>`).join('') +
       '</ul>';
   } else if (result.loser) {
-    const isLoser = result.loser.id === socket.id;
-    document.getElementById('result-title').textContent =
-      isLoser ? t('oldLoser') : t('oldTitle');
+    // ババ抜き: 上がった順 → ジョーカー保持者
+    document.getElementById('result-title').textContent = t('oldTitle');
     document.getElementById('result-body').innerHTML =
       '<ul class="ranking-list">' +
       result.rankings.map((r, i) => {
