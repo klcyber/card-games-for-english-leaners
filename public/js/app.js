@@ -51,6 +51,7 @@ const strings = {
     dealing: 'Discard your pairs!',
     hintNone: '💡 No pairs',
     concTitle: '🎉 Results',
+    wordListTitle: '📖 Word List',
     oldTitle: '🎉 Results',
     oldLoser: "😢 You're holding the Joker!",
     resultWin: '🎉 Win',
@@ -112,6 +113,7 @@ const strings = {
     dealing: 'ペアを全て捨てよう！',
     hintNone: '💡 ペアなし',
     concTitle: '🎉 結果',
+    wordListTitle: '📖 使用単語一覧',
     oldTitle: '🎉 結果発表',
     oldLoser: '😢 あなたがジョーカーを引きました！',
     resultWin: '🎉 勝ち',
@@ -1034,6 +1036,10 @@ socket.on('game-over', result => {
   showScreen('result');
   const medals = ['🥇', '🥈', '🥉'];
 
+  // 単語リストエリアを初期化
+  const wordlistEl = document.getElementById('result-wordlist');
+  wordlistEl.style.display = 'none';
+
   if (result.rankings && !result.loser) {
     // 神経衰弱: スコア順
     document.getElementById('result-title').textContent = t('concTitle');
@@ -1046,6 +1052,19 @@ socket.on('game-over', result => {
           <span class="rank-score">${r.score} ${t('pairUnit')}</span>
         </li>`).join('') +
       '</ul>';
+
+    // 使用単語リストを表示
+    if (result.wordList?.length) {
+      document.getElementById('result-wordlist-title').textContent = t('wordListTitle');
+      document.getElementById('result-wordlist-grid').innerHTML =
+        result.wordList.map(w => `
+          <div class="result-word-item">
+            <span class="result-word-en">${esc(w.word)}</span>
+            <span class="result-word-sep">→</span>
+            <span class="result-word-ans">${esc(w.answer)}</span>
+          </div>`).join('');
+      wordlistEl.style.display = 'block';
+    }
   } else if (result.loser) {
     // ババ抜き: 上がった順 → ジョーカー保持者
     document.getElementById('result-title').textContent = t('oldTitle');

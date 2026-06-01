@@ -191,7 +191,16 @@ function buildConcentrationResult(room) {
   const rankings = room.players
     .map(p => ({ name: p.name, score: g.scores[p.id] ?? 0, isBot: p.isBot }))
     .sort((a, b) => b.score - a.score);
-  return { rankings };
+
+  // 使用単語リスト: wordカードとanswerカードをwordIdで対応付け
+  const wordCards   = g.cards.filter(c => c.type === 'word');
+  const answerCards = g.cards.filter(c => c.type === 'answer');
+  const wordList = wordCards.map(w => {
+    const ans = answerCards.find(a => a.wordId === w.wordId);
+    return { word: w.content, answer: ans?.content ?? '' };
+  });
+
+  return { rankings, wordList };
 }
 
 // ─── Old Maid ─────────────────────────────────────────────────────────────────
