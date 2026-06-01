@@ -743,7 +743,18 @@ function updateFlipCard(el, card, isMyTurn, lockedZone) {
   const content = el.querySelector('.flip-card-content');
   if (content) {
     content.textContent = card.content;
+    // まず標準サイズで設定し、はみ出ていたら縮小
     content.style.fontSize = '0.95rem';
+    requestAnimationFrame(() => {
+      if (!content.parentElement) return;
+      const back = content.closest('.flip-card-back');
+      if (!back) return;
+      let fs = 0.95;
+      while (back.scrollHeight > back.clientHeight && fs > 0.6) {
+        fs = Math.round((fs - 0.04) * 100) / 100;
+        content.style.fontSize = fs + 'rem';
+      }
+    });
   }
 }
 
