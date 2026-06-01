@@ -102,7 +102,7 @@ const strings = {
     btnEndGame: '終了',
     confirmEndGame: 'ゲームを終了してスコアを表示しますか？',
     syncFailed: 'ゲームに再接続できませんでした。ロビーに戻りますか？',
-    syncLabel: '固まったらここ',
+    syncLabel: '画面が固まったら',
     zoneWord: '英単語',
     zoneAnswer: '日本語',
     myTurn: '🎯 あなたのターン！',
