@@ -214,14 +214,17 @@ function checkOldMaidGameOver(room) {
     g.phase = 'finished';
     const loser = activePlayers[0];
     io.to(room.code).emit('game-state', gameStatePayload(room));
+    // 脱落順（早い順 = 上位）にならべ、最後にジョーカー保持者を追加
+    const orderedRankings = g.eliminated.map(id => {
+      const p = room.players.find(pl => pl.id === id);
+      return { id, name: p.name, isBot: p.isBot, result: 'win' };
+    });
+    orderedRankings.push({ id: loser.id, name: loser.name, isBot: loser.isBot, result: 'lose' });
+
     io.to(room.code).emit('game-over', {
       type: 'oldmaid',
       loser: { id: loser.id, name: loser.name },
-      rankings: room.players.map(p => ({
-        name: p.name,
-        isBot: p.isBot,
-        result: g.eliminated.includes(p.id) ? 'win' : 'lose',
-      })),
+      rankings: orderedRankings,
     });
     return true;
   }

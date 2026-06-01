@@ -991,11 +991,16 @@ socket.on('game-over', result => {
       isLoser ? t('oldLoser') : t('oldTitle');
     document.getElementById('result-body').innerHTML =
       '<ul class="ranking-list">' +
-      result.rankings.map(r => `
-        <li class="${r.result === 'lose' ? 'rank-loser' : 'rank-1'}">
+      result.rankings.map((r, i) => {
+        const isLose = r.result === 'lose';
+        const medal = isLose ? '💀' : (medals[i] ?? i + 1);
+        return `
+        <li class="${isLose ? 'rank-loser' : i === 0 ? 'rank-1' : ''}">
+          <span class="rank-num">${medal}</span>
           <span class="rank-name">${r.isBot ? '🤖 ' : ''}${esc(r.name)}</span>
-          <span class="rank-score">${r.result === 'win' ? t('resultWin') : t('resultLose')}</span>
-        </li>`).join('') +
+          <span class="rank-score">${isLose ? t('resultLose') : t('resultWin')}</span>
+        </li>`;
+      }).join('') +
       '</ul>';
   }
 });
