@@ -220,7 +220,7 @@ function checkOldMaidGameOver(room) {
       rankings: room.players.map(p => ({
         name: p.name,
         isBot: p.isBot,
-        result: g.eliminated.includes(p.id) ? '勝ち 🎉' : '負け 😢 (ジョーカー)',
+        result: g.eliminated.includes(p.id) ? 'win' : 'lose',
       })),
     });
     return true;

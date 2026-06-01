@@ -50,6 +50,8 @@ const strings = {
     concTitle: '🎉 Results',
     oldTitle: '🎉 Game Over!',
     oldLoser: "😢 You're holding the Joker!",
+    resultWin: '🎉 Win',
+    resultLose: '😢 Lose (Joker)',
     pairUnit: 'pairs',
     readyCount: (n, t) => `${n}/${t} Ready`,
     drawTarget: 'Draw from here!',
@@ -106,6 +108,8 @@ const strings = {
     concTitle: '🎉 結果',
     oldTitle: '🎉 ゲーム終了！',
     oldLoser: '😢 あなたがジョーカーを引きました！',
+    resultWin: '🎉 勝ち',
+    resultLose: '😢 負け（ジョーカー）',
     pairUnit: 'ペア',
     readyCount: (n, t) => `${n}/${t} 準備完了`,
     drawTarget: 'ここから引く！',
@@ -988,9 +992,9 @@ socket.on('game-over', result => {
     document.getElementById('result-body').innerHTML =
       '<ul class="ranking-list">' +
       result.rankings.map(r => `
-        <li class="${r.result.includes('負け') || r.result.includes('Joker') ? 'rank-loser' : 'rank-1'}">
+        <li class="${r.result === 'lose' ? 'rank-loser' : 'rank-1'}">
           <span class="rank-name">${r.isBot ? '🤖 ' : ''}${esc(r.name)}</span>
-          <span class="rank-score">${esc(r.result)}</span>
+          <span class="rank-score">${r.result === 'win' ? t('resultWin') : t('resultLose')}</span>
         </li>`).join('') +
       '</ul>';
   }
