@@ -165,12 +165,23 @@ document.getElementById('btn-lang').addEventListener('click', () => {
 // 初期化
 setLang(currentLang);
 
+// 永続clientId（再接続時に同じプレイヤーと認識させる）
+let myClientId = localStorage.getItem('vcg-client-id');
+if (!myClientId) {
+  myClientId = Math.random().toString(36).slice(2, 14);
+  localStorage.setItem('vcg-client-id', myClientId);
+}
+
 const socket = io();
 let myId = null;
 let roomState = null;
 let myHand = [];
 
-socket.on('connect', () => { myId = socket.id; });
+socket.on('connect', () => {
+  myId = socket.id;
+  // 再接続時: サーバーに既存プレイヤーへの紐付けを要求
+  socket.emit('reconnect-player', { clientId: myClientId });
+});
 
 // ══════════════════════════════════════════════════════════════════════════════
 // SCREEN MANAGEMENT
@@ -201,7 +212,7 @@ document.getElementById('btn-join').addEventListener('click', () => {
   const code = document.getElementById('join-code').value.trim().toUpperCase();
   if (!name) return showTopError('join-error', 'お名前を入力してください');
   if (code.length !== 4) return showTopError('join-error', '4文字のルームコードを入力してください');
-  socket.emit('join-room', { code, name });
+  socket.emit('join-room', { code, name, clientId: myClientId });
 });
 
 document.getElementById('join-code').addEventListener('input', e => {
@@ -218,7 +229,7 @@ document.getElementById('join-code').addEventListener('input', e => {
 document.getElementById('btn-create').addEventListener('click', () => {
   const name = document.getElementById('create-name').value.trim();
   if (!name) return showTopError('create-error', 'お名前を入力してください');
-  socket.emit('create-room', { name, settings: {} });
+  socket.emit('create-room', { name, settings: {}, clientId: myClientId });
 });
 
 document.getElementById('create-name').addEventListener('keydown', e => {

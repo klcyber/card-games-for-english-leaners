@@ -6,7 +6,10 @@ const fs = require('fs');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  pingTimeout: 20000,
+  pingInterval: 10000,
+});
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -489,12 +492,57 @@ function roomStatePayload(room) {
   };
 }
 
+// clientId → socketId のマッピング（再接続対応）
+const clientSocketMap = {}; // clientId → socket.id
+const disconnectTimers = {}; // clientId → timer
+
+function findPlayerByClientId(clientId) {
+  for (const room of Object.values(rooms)) {
+    const player = room.players.find(p => p.clientId === clientId);
+    if (player) return { room, player };
+  }
+  return null;
+}
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 io.on('connection', socket => {
-  socket.on('create-room', ({ name, settings }) => {
+
+  // 再接続: clientIdで既存プレイヤーに紐づける
+  socket.on('reconnect-player', ({ clientId }) => {
+    if (!clientId) return;
+    socket.data.clientId = clientId;
+    clientSocketMap[clientId] = socket.id;
+
+    // 切断タイマーをキャンセル
+    if (disconnectTimers[clientId]) {
+      clearTimeout(disconnectTimers[clientId]);
+      delete disconnectTimers[clientId];
+    }
+
+    const found = findPlayerByClientId(clientId);
+    if (!found) return;
+
+    const { room, player } = found;
+    const oldSocketId = player.id;
+    player.id = socket.id; // socket.idを更新
+    if (room.host === oldSocketId) room.host = socket.id;
+
+    socket.data.roomCode = room.code;
+    socket.join(room.code);
+
+    // ゲーム中なら現在のゲーム状態を送信
+    if (room.game) {
+      socket.emit('game-state', gameStatePayload(room));
+    } else {
+      socket.emit('room-state', roomStatePayload(room));
+    }
+  });
+
+  socket.on('create-room', ({ name, settings, clientId }) => {
     const code = generateCode();
-    const player = { id: socket.id, name };
+    if (clientId) { socket.data.clientId = clientId; clientSocketMap[clientId] = socket.id; }
+    const player = { id: socket.id, name, clientId };
     rooms[code] = {
       code,
       host: socket.id,
@@ -511,14 +559,30 @@ io.on('connection', socket => {
     io.to(code).emit('room-state', roomStatePayload(rooms[code]));
   });
 
-  socket.on('join-room', ({ code, name }) => {
+  socket.on('join-room', ({ code, name, clientId }) => {
     const upper = code.toUpperCase();
     const room = rooms[upper];
     if (!room) return socket.emit('error', { message: 'ルームが見つかりません' });
+
+    if (clientId) { socket.data.clientId = clientId; clientSocketMap[clientId] = socket.id; }
+
+    // ゲーム中に同じclientIdのプレイヤーが再参加する場合は復帰
+    if (clientId && room.game) {
+      const existing = room.players.find(p => p.clientId === clientId);
+      if (existing) {
+        existing.id = socket.id;
+        if (room.host === existing.id) room.host = socket.id;
+        socket.data.roomCode = upper;
+        socket.join(upper);
+        socket.emit('game-state', gameStatePayload(room));
+        return;
+      }
+    }
+
     const humanCount = room.players.filter(p => !p.isBot).length;
     if (humanCount >= 8) return socket.emit('error', { message: 'ルームが満員です (最大8人)' });
 
-    const player = { id: socket.id, name };
+    const player = { id: socket.id, name, clientId };
     room.players.push(player);
     socket.data.playerId = socket.id;
     socket.data.roomCode = upper;
@@ -683,17 +747,29 @@ io.on('connection', socket => {
 
   socket.on('disconnect', () => {
     const code = socket.data.roomCode;
+    const clientId = socket.data.clientId;
     const room = rooms[code];
     if (!room) return;
-    room.players = room.players.filter(p => p.id !== socket.id);
-    if (room.players.filter(p => !p.isBot).length === 0) {
-      delete rooms[code];
-      return;
+
+    const removePlayer = () => {
+      if (clientId) delete disconnectTimers[clientId];
+      room.players = room.players.filter(p => p.id !== socket.id);
+      if (room.players.filter(p => !p.isBot).length === 0) {
+        delete rooms[code];
+        return;
+      }
+      if (room.host === socket.id) {
+        room.host = room.players.find(p => !p.isBot)?.id ?? room.players[0]?.id;
+      }
+      io.to(code).emit('room-state', roomStatePayload(room));
+    };
+
+    // ゲーム中は30秒間プレイヤーを保持して再接続を待つ
+    if (room.game && room.game.phase === 'playing' && clientId) {
+      disconnectTimers[clientId] = setTimeout(removePlayer, 30000);
+    } else {
+      removePlayer();
     }
-    if (room.host === socket.id) {
-      room.host = room.players.find(p => !p.isBot)?.id ?? room.players[0]?.id;
-    }
-    io.to(code).emit('room-state', roomStatePayload(room));
   });
 });
 
