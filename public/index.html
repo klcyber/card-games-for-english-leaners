@@ -9,6 +9,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@700&family=Zen+Maru+Gothic:wght@900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- 🔄リロード時のホーム画面チラつき防止: JSより先に実行 -->
+  <script>if(sessionStorage.getItem('vcg-syncing')==='1'){document.documentElement.classList.add('syncing');}</script>
 </head>
 <body>
 

@@ -190,6 +190,7 @@ input[type="range"] {
 /* ── Screens ── */
 .screen { display: none; }
 .screen.active { display: block; }
+html.syncing .screen { display: none !important; }
 
 /* ── Room header ── */
 .room-header {

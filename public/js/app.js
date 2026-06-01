@@ -169,12 +169,9 @@ document.getElementById('btn-lang').addEventListener('click', () => {
 // 初期化
 setLang(currentLang);
 
-// 🔄リロード中はホーム画面チラつきを防ぐ
+// 🔄リロード中フラグをクリア（CSSで既に非表示済み）
 if (sessionStorage.getItem('vcg-syncing') === '1') {
   sessionStorage.removeItem('vcg-syncing');
-  // 全スクリーンを非表示にしてローディング状態に
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.body.style.background = '#0a1628'; // ゲーム背景色を維持
 }
 
 // 永続clientId（再接続時に同じプレイヤーと認識させる）
@@ -208,6 +205,7 @@ socket.on('connect', () => {
 // ══════════════════════════════════════════════════════════════════════════════
 
 function showScreen(name) {
+  document.documentElement.classList.remove('syncing'); // チラつき防止フラグを解除
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(`screen-${name}`).classList.add('active');
 }
