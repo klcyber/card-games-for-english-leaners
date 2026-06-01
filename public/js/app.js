@@ -566,6 +566,10 @@ document.getElementById('btn-start').addEventListener('click', () => {
 });
 
 // End game button (concentration only)
+document.getElementById('btn-conc-sync').addEventListener('click', () => {
+  socket.emit('sync-state');
+});
+
 document.getElementById('btn-conc-end').addEventListener('click', () => {
   if (confirm(t('confirmEndGame'))) {
     socket.emit('end-concentration');

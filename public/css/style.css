@@ -607,6 +607,17 @@ input[type="range"] {
 }
 #screen-concentration .game-title { color: #e8f0ff; font-size: 1.15rem; }
 #screen-concentration .btn-back { border-color: rgba(255,255,255,0.18); color: #8aa4cc; background: none; }
+.btn-sync {
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: transparent;
+  color: #8aa4cc;
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.btn-sync:hover { background: rgba(255,255,255,0.08); }
 .btn-end-game {
   padding: 6px 14px;
   border-radius: 8px;

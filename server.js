@@ -741,6 +741,11 @@ io.on('connection', socket => {
     socket.emit('hand-update', { hand: g.hands[socket.id], discarded: [card1, card2] });
   });
 
+  socket.on('sync-state', () => {
+    const room = rooms[socket.data.roomCode];
+    if (room?.game) socket.emit('game-state', gameStatePayload(room));
+  });
+
   socket.on('end-concentration', () => {
     const room = rooms[socket.data.roomCode];
     if (!room || !room.game || room.game.type !== 'concentration') return;
