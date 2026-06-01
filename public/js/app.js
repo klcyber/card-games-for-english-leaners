@@ -598,21 +598,12 @@ document.getElementById('btn-conc-end').addEventListener('click', () => {
   }
 });
 
-// Home buttons during game
-['conc-home', 'om-home'].forEach(id => {
+// ゲーム中・結果画面のルームに戻るボタン（全て統一）
+// ホスト: 全員をロビーへ戻す / 非ホスト: 自分だけルーム画面へ
+['conc-home', 'om-home', 'btn-return-room'].forEach(id => {
   document.getElementById(id).addEventListener('click', () => {
-    socket.emit('restart-game');
+    socket.emit('return-to-room');
   });
-});
-
-// ルームに戻る — ホストは全員をリセット、非ホストはローカルで画面遷移
-document.getElementById('btn-return-room').addEventListener('click', () => {
-  if (roomState?.host === socket.id) {
-    socket.emit('restart-game'); // サーバーが room-state を全員に送信 → showScreen('room')
-  } else {
-    showScreen('room');
-    if (roomState) renderRoom(roomState);
-  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════

@@ -756,10 +756,27 @@ io.on('connection', socket => {
   socket.on('restart-game', () => {
     const room = rooms[socket.data.roomCode];
     if (!room || room.host !== socket.id) return;
-    room.players = room.players.filter(p => !p.isBot); // ボットをリセット
+    room.players = room.players.filter(p => !p.isBot);
     room.phase = 'lobby';
     room.game = null;
     io.to(room.code).emit('room-state', roomStatePayload(room));
+  });
+
+  // 誰でも使えるルームに戻るイベント
+  // ホストなら全員をロビーに戻す、非ホストは自分だけルーム画面へ
+  socket.on('return-to-room', () => {
+    const room = rooms[socket.data.roomCode];
+    if (!room) return;
+    if (room.host === socket.id) {
+      // ホスト: ゲームをリセットして全員をロビーへ
+      room.players = room.players.filter(p => !p.isBot);
+      room.phase = 'lobby';
+      room.game = null;
+      io.to(room.code).emit('room-state', roomStatePayload(room));
+    } else {
+      // 非ホスト: 自分だけに現在のルーム状態を送る
+      socket.emit('room-state', roomStatePayload(room));
+    }
   });
 
   socket.on('leave-room', () => {
