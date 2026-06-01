@@ -169,6 +169,14 @@ document.getElementById('btn-lang').addEventListener('click', () => {
 // 初期化
 setLang(currentLang);
 
+// 🔄リロード中はホーム画面チラつきを防ぐ
+if (sessionStorage.getItem('vcg-syncing') === '1') {
+  sessionStorage.removeItem('vcg-syncing');
+  // 全スクリーンを非表示にしてローディング状態に
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.body.style.background = '#0a1628'; // ゲーム背景色を維持
+}
+
 // 永続clientId（再接続時に同じプレイヤーと認識させる）
 let myClientId = localStorage.getItem('vcg-client-id');
 if (!myClientId) {
@@ -183,8 +191,16 @@ let myHand = [];
 
 socket.on('connect', () => {
   myId = socket.id;
-  // 再接続時: サーバーに既存プレイヤーへの紐付けを要求
   socket.emit('reconnect-player', { clientId: myClientId });
+
+  // 🔄リロード後: 2秒以内にgame-stateが来なければホーム画面を表示
+  if (!document.querySelector('.screen.active')) {
+    const fallbackTimer = setTimeout(() => {
+      if (!document.querySelector('.screen.active')) showScreen('top');
+    }, 2000);
+    socket.once('game-state', () => clearTimeout(fallbackTimer));
+    socket.once('room-state', () => clearTimeout(fallbackTimer));
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════════════
@@ -571,7 +587,8 @@ document.getElementById('btn-start').addEventListener('click', () => {
 
 // End game button (concentration only)
 document.getElementById('btn-conc-sync').addEventListener('click', () => {
-  // ページを再読み込みして完全リセット（ブラウザリフレッシュと同じ効果）
+  // リロード中フラグを立ててからリロード（ホーム画面チラつき防止）
+  sessionStorage.setItem('vcg-syncing', '1');
   window.location.reload();
 });
 
