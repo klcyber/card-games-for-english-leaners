@@ -743,15 +743,14 @@ function updateFlipCard(el, card, isMyTurn, lockedZone) {
   const content = el.querySelector('.flip-card-content');
   if (content) {
     content.textContent = card.content;
-    // 文字量に応じてフォントサイズを自動調整
+    // 文字量に応じてフォントサイズを調整（最低0.68rem確保）
     const len = card.content.length;
-    const cardH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--conc-card-h')) || 90;
     let fs;
-    if (len <= 6)       fs = Math.min(0.9, cardH * 0.016) + 'rem';
-    else if (len <= 12) fs = Math.min(0.8, cardH * 0.014) + 'rem';
-    else if (len <= 20) fs = Math.min(0.72, cardH * 0.012) + 'rem';
-    else if (len <= 35) fs = Math.min(0.64, cardH * 0.010) + 'rem';
-    else                fs = Math.min(0.55, cardH * 0.009) + 'rem';
+    if (len <= 6)       fs = '0.95rem';
+    else if (len <= 12) fs = '0.85rem';
+    else if (len <= 20) fs = '0.78rem';
+    else if (len <= 35) fs = '0.72rem';
+    else                fs = '0.68rem';
     content.style.fontSize = fs;
   }
 }

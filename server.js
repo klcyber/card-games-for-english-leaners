@@ -383,16 +383,19 @@ function botConcFlip(room, bot) {
     return pool.length ? pool[Math.floor(Math.random() * pool.length)] : pickRandom(type);
   };
 
+  // enパターンは必ずanswerゾーン（定義）から先にめくる
+  const enPattern = room.settings.pattern === 'en';
+
   let firstId, secondId = null;
 
   if (knownPairs.length > 0 && Math.random() < HIT_RATE) {
-    // 知っているペアを使う（確率的に）
     const pair = knownPairs[Math.floor(Math.random() * knownPairs.length)];
-    firstId  = pair.word;
-    secondId = pair.answer;
+    // enパターン: 定義(answer)→英単語(word) の順で
+    firstId  = enPattern ? pair.answer : pair.word;
+    secondId = enPattern ? pair.word   : pair.answer;
   } else {
-    // ランダムにめくって情報収集
-    const startType = Math.random() < 0.5 ? 'word' : 'answer';
+    // ランダム探索: enパターンは必ずanswerから
+    const startType = enPattern ? 'answer' : (Math.random() < 0.5 ? 'word' : 'answer');
     const c1 = pickUnknown(startType) || pickUnknown(startType === 'word' ? 'answer' : 'word');
     if (!c1) return;
     firstId = c1.id;
