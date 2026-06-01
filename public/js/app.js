@@ -739,7 +739,19 @@ function updateFlipCard(el, card, isMyTurn, lockedZone) {
   el.classList.toggle('zone-locked', locked);
   el.classList.toggle('not-my-turn', !isMyTurn || card.faceUp || card.matched || locked);
   const content = el.querySelector('.flip-card-content');
-  if (content) content.textContent = card.content;
+  if (content) {
+    content.textContent = card.content;
+    // 文字量に応じてフォントサイズを自動調整
+    const len = card.content.length;
+    const cardH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--conc-card-h')) || 90;
+    let fs;
+    if (len <= 6)       fs = Math.min(0.9, cardH * 0.016) + 'rem';
+    else if (len <= 12) fs = Math.min(0.8, cardH * 0.014) + 'rem';
+    else if (len <= 20) fs = Math.min(0.72, cardH * 0.012) + 'rem';
+    else if (len <= 35) fs = Math.min(0.64, cardH * 0.010) + 'rem';
+    else                fs = Math.min(0.55, cardH * 0.009) + 'rem';
+    content.style.fontSize = fs;
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
