@@ -109,7 +109,12 @@ function startConcentration(room) {
 function handleFlipCard(room, playerId, cardId) {
   const g = room.game;
   const currentPlayer = room.players[g.currentPlayerIndex];
-  if (!currentPlayer || currentPlayer.id !== playerId) return;
+  if (!currentPlayer || currentPlayer.id !== playerId) {
+    // 自分のターンでないのに操作してきた → 最新状態を送って同期
+    const s = io.sockets.sockets.get(playerId);
+    if (s) s.emit('game-state', gameStatePayload(room));
+    return;
+  }
   if (g.phase !== 'playing') return;
 
   const card = g.cards.find(c => c.id === cardId);
@@ -320,12 +325,25 @@ function scheduleBotAction(room) {
 
   if (g.type === 'concentration') {
     const cur = room.players[g.currentPlayerIndex];
-    if (!cur?.isBot) return;
-    const delay = 500 + Math.floor(Math.random() * 400); // 0.5〜0.9秒
-    setTimeout(() => {
-      if (rooms[room.code]?.game !== g) return;
-      botConcFlip(room, cur);
-    }, delay);
+    if (cur?.isBot) {
+      const delay = 500 + Math.floor(Math.random() * 400);
+      setTimeout(() => {
+        if (rooms[room.code]?.game !== g) return;
+        botConcFlip(room, cur);
+      }, delay);
+    } else {
+      // 人間のターン: 状態を全員に再送して確実に同期
+      io.to(room.code).emit('game-state', gameStatePayload(room));
+      // ウォッチドッグ: g.flippedが詰まっていたら10秒後に強制クリア
+      setTimeout(() => {
+        if (rooms[room.code]?.game !== g || g.phase !== 'playing') return;
+        if (g.flipped.length >= 2) {
+          g.flipped.forEach(c => { c.faceUp = false; });
+          g.flipped = [];
+          io.to(room.code).emit('game-state', gameStatePayload(room));
+        }
+      }, 10000);
+    }
 
   } else if (g.type === 'oldmaid' && g.phase === 'playing') {
     if (g.waitingForPass) return; // 人間プレイヤーの確認待ち中はボット動作させない
@@ -410,7 +428,17 @@ function botConcFlip(room, bot) {
       }
     }
 
-    if (!c2Id) return;
+    if (!c2Id) {
+      // c2が見つからない場合: 1枚目を裏に戻してターンを進める
+      if (g.flipped.length === 1) {
+        g.flipped[0].faceUp = false;
+        g.flipped = [];
+      }
+      g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+      io.to(room.code).emit('game-state', gameStatePayload(room));
+      scheduleBotAction(room);
+      return;
+    }
     handleFlipCard(room, bot.id, c2Id);
   }, 1200 + Math.floor(Math.random() * 1000));
 }
