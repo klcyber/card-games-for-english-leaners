@@ -569,28 +569,8 @@ document.getElementById('btn-start').addEventListener('click', () => {
 
 // End game button (concentration only)
 document.getElementById('btn-conc-sync').addEventListener('click', () => {
-  // ソケットを再接続してIDを再同期（詰まった時の復帰）
-  const btn = document.getElementById('btn-conc-sync');
-  btn.textContent = '⏳';
-  btn.disabled = true;
-
-  socket.disconnect();
-  socket.connect();
-
-  // 3秒以内にgame-stateが来なければロビーへ誘導
-  const syncTimeout = setTimeout(() => {
-    btn.textContent = '🔄';
-    btn.disabled = false;
-    if (confirm(t('syncFailed'))) {
-      showScreen('top');
-    }
-  }, 3000);
-
-  socket.once('game-state', () => {
-    clearTimeout(syncTimeout);
-    btn.textContent = '🔄';
-    btn.disabled = false;
-  });
+  // ページを再読み込みして完全リセット（ブラウザリフレッシュと同じ効果）
+  window.location.reload();
 });
 
 document.getElementById('btn-conc-end').addEventListener('click', () => {
