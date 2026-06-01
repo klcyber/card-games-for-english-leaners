@@ -45,6 +45,7 @@ const strings = {
     syncLabel: 'Frozen? Tap here',
     zoneWord: 'English',
     zoneAnswer: 'Japanese',
+    zoneDef: 'Definition',
     myTurn: '🎯 Your turn!',
     theirTurn: n => `${n}'s turn`,
     dealing: 'Discard your pairs!',
@@ -105,6 +106,7 @@ const strings = {
     syncLabel: '画面が固まったら',
     zoneWord: '英単語',
     zoneAnswer: '日本語',
+    zoneDef: '定義',
     myTurn: '🎯 あなたのターン！',
     theirTurn: n => `${n} のターン`,
     dealing: 'ペアを全て捨てよう！',
@@ -656,9 +658,17 @@ function renderConcentration(state) {
     .map(s => `<span class="score-chip${s.id === socket.id ? ' me' : ''}">${s.isBot ? '🤖 ' : ''}${esc(s.name)}: ${s.score}</span>`)
     .join('');
 
+  // ゾーンラベルをパターンに応じて更新
+  const isEnPattern = state.pattern === 'en';
+  document.getElementById('zone-label-words').textContent = t('zoneWord');
+  document.getElementById('zone-label-answers').textContent = isEnPattern ? t('zoneDef') : t('zoneAnswer');
+
   // 1枚だけ表向きなら同じゾーンをロック
+  // enパターンは0枚時もwordゾーンをロック（定義から先にめくる）
   const faceUpUnmatched = state.cards.filter(c => c.faceUp && !c.matched);
-  const lockedZone = faceUpUnmatched.length === 1 ? faceUpUnmatched[0].type : null;
+  const lockedZone = faceUpUnmatched.length === 1
+    ? faceUpUnmatched[0].type
+    : (isEnPattern && faceUpUnmatched.length === 0 ? 'word' : null);
 
   const wordCards   = state.cards.filter(c => c.type === 'word');
   const answerCards = state.cards.filter(c => c.type === 'answer');

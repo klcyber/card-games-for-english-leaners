@@ -121,6 +121,9 @@ function handleFlipCard(room, playerId, cardId) {
   if (!card || card.matched) return;
   if (card.faceUp) return;
 
+  // enパターン: 1枚目は定義(answer)ゾーンから選ぶ
+  if (g.flipped.length === 0 && room.settings.pattern === 'en' && card.type === 'word') return;
+
   // ゾーンロック: 1枚目と同じゾーンは選べない
   if (g.flipped.length === 1 && card.type === g.flipped[0].type) return;
 
@@ -472,6 +475,7 @@ function gameStatePayload(room) {
     return {
       type: 'concentration',
       cards: g.cards,
+      pattern: room.settings.pattern,
       currentPlayer: room.players[g.currentPlayerIndex]?.id,
       currentPlayerName: room.players[g.currentPlayerIndex]?.name,
       currentPlayerIsBot: room.players[g.currentPlayerIndex]?.isBot ?? false,
