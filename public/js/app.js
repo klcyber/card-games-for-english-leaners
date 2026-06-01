@@ -701,7 +701,7 @@ function setCardSize(pairCount) {
 
     const cols = Math.max(2, Math.min(8, Math.floor(zoneW / 120)));
     const rows = Math.ceil(pairCount / cols);
-    const h = Math.max(48, Math.min(140, Math.floor((availH - (rows - 1) * gap) / rows)));
+    const h = Math.max(64, Math.min(160, Math.floor((availH - (rows - 1) * gap) / rows)));
 
     // CSS変数でなくグリッド要素に直接設定（確実に反映される）
     document.documentElement.style.setProperty('--conc-card-h', h + 'px');
@@ -743,15 +743,7 @@ function updateFlipCard(el, card, isMyTurn, lockedZone) {
   const content = el.querySelector('.flip-card-content');
   if (content) {
     content.textContent = card.content;
-    // 文字量に応じてフォントサイズを調整
-    const len = card.content.length;
-    let fs;
-    if (len <= 6)       fs = '1.1rem';
-    else if (len <= 12) fs = '1.0rem';
-    else if (len <= 20) fs = '0.9rem';
-    else if (len <= 35) fs = '0.82rem';
-    else                fs = '0.76rem';
-    content.style.fontSize = fs;
+    content.style.fontSize = '0.95rem';
   }
 }
 
