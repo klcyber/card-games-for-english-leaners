@@ -132,6 +132,7 @@ function handleFlipCard(room, playerId, cardId) {
 
   card.faceUp = true;
   g.flipped.push(card);
+  g.flippedAt = Date.now(); // 詰まり検知用タイムスタンプ
 
   // 全ボットの記憶を更新（誰のターンでも見えたカードは覚える）
   if (!g.botMemory) g.botMemory = {};
@@ -208,6 +209,15 @@ function buildConcentrationResult(room) {
 function startOldMaid(room) {
   const words = filterWords(room);
   const cards = buildCards(words, room.settings.pattern, room.settings.pairCount);
+
+  // 使用単語ペアの一覧を保存（結果画面で表示）
+  const wordCards   = cards.filter(c => c.type === 'word');
+  const answerCards = cards.filter(c => c.type === 'answer');
+  const wordList = wordCards.map(w => {
+    const ans = answerCards.find(a => a.wordId === w.wordId);
+    return { word: w.content, answer: ans?.content ?? '' };
+  });
+
   cards.push({ id: 'joker', wordId: 'joker', type: 'joker', content: 'JOKER' });
 
   const shuffled = shuffle(cards);
@@ -224,6 +234,7 @@ function startOldMaid(room) {
     eliminated: [],
     phase: 'dealing',
     readyPlayers: [],
+    wordList,
   };
 }
 
@@ -245,6 +256,7 @@ function checkOldMaidGameOver(room) {
       type: 'oldmaid',
       loser: { id: loser.id, name: loser.name },
       rankings: orderedRankings,
+      wordList: g.wordList || [],
     });
     return true;
   }
@@ -865,6 +877,41 @@ io.on('connection', socket => {
     }
   });
 });
+
+// ─── 詰まり自動復旧スイープ ──────────────────────────────────────────────────
+// どんな競合状態でゲームが止まっても、最終的に必ず復旧させる安全網
+setInterval(() => {
+  const now = Date.now();
+  for (const room of Object.values(rooms)) {
+    const g = room.game;
+    if (!g || g.type !== 'concentration' || g.phase !== 'playing') continue;
+    if (!g.flipped || g.flipped.length === 0) continue;
+    if (!g.flippedAt) { g.flippedAt = now; continue; }
+
+    const stuckMs = now - g.flippedAt;
+
+    // 2枚表向きのまま4秒以上 → 通常の解決タイマーが失敗している。強制で裏返しターンチェンジ
+    if (g.flipped.length === 2 && stuckMs > 4000) {
+      g.flipped.forEach(c => { c.faceUp = false; });
+      g.flipped = [];
+      g.flippedAt = null;
+      g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+      io.to(room.code).emit('game-state', gameStatePayload(room));
+      scheduleBotAction(room);
+      continue;
+    }
+
+    // 1枚表向きのまま40秒以上 → 現在のプレイヤーが固まっている。裏返してターンチェンジ
+    if (g.flipped.length === 1 && stuckMs > 40000) {
+      g.flipped.forEach(c => { c.faceUp = false; });
+      g.flipped = [];
+      g.flippedAt = null;
+      g.currentPlayerIndex = (g.currentPlayerIndex + 1) % room.players.length;
+      io.to(room.code).emit('game-state', gameStatePayload(room));
+      scheduleBotAction(room);
+    }
+  }
+}, 2000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));

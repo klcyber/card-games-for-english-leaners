@@ -627,7 +627,18 @@ socket.on('game-start', ({ gameType }) => {
 // 神経衰弱
 // ══════════════════════════════════════════════════════════════════════════════
 
+let _relinkCooldown = 0;
 socket.on('game-state', state => {
+  // 自己修復: 自分のsocket.idがプレイヤー一覧に無い＝サーバーとIDがズレている
+  // → 自動で再リンク要求（手動リフレッシュ不要）
+  const known = state.type === 'concentration'
+    ? state.scores?.some(s => s.id === socket.id)
+    : state.players?.some(p => p.id === socket.id);
+  if (!known && Date.now() - _relinkCooldown > 3000) {
+    _relinkCooldown = Date.now();
+    socket.emit('reconnect-player', { clientId: myClientId });
+  }
+
   if (state.type === 'concentration') {
     // 再接続後にゲーム画面に戻す
     const current = document.querySelector('.screen.active')?.id;
@@ -1053,18 +1064,7 @@ socket.on('game-over', result => {
         </li>`).join('') +
       '</ul>';
 
-    // 使用単語リストを表示
-    if (result.wordList?.length) {
-      document.getElementById('result-wordlist-title').textContent = t('wordListTitle');
-      document.getElementById('result-wordlist-grid').innerHTML =
-        result.wordList.map(w => `
-          <div class="result-word-item">
-            <span class="result-word-en">${esc(w.word)}</span>
-            <span class="result-word-sep">→</span>
-            <span class="result-word-ans">${esc(w.answer)}</span>
-          </div>`).join('');
-      wordlistEl.style.display = 'block';
-    }
+    showResultWordList(result.wordList);
   } else if (result.loser) {
     // ババ抜き: 上がった順 → ジョーカー保持者
     document.getElementById('result-title').textContent = t('oldTitle');
@@ -1081,8 +1081,24 @@ socket.on('game-over', result => {
         </li>`;
       }).join('') +
       '</ul>';
+
+    showResultWordList(result.wordList);
   }
 });
+
+function showResultWordList(wordList) {
+  const wordlistEl = document.getElementById('result-wordlist');
+  if (!wordList?.length) { wordlistEl.style.display = 'none'; return; }
+  document.getElementById('result-wordlist-title').textContent = t('wordListTitle');
+  document.getElementById('result-wordlist-grid').innerHTML =
+    wordList.map(w => `
+      <div class="result-word-item">
+        <span class="result-word-en">${esc(w.word)}</span>
+        <span class="result-word-sep">→</span>
+        <span class="result-word-ans">${esc(w.answer)}</span>
+      </div>`).join('');
+  wordlistEl.style.display = 'block';
+}
 
 
 // ══════════════════════════════════════════════════════════════════════════════
