@@ -587,11 +587,13 @@ document.getElementById('btn-start').addEventListener('click', () => {
   socket.emit('start-game');
 });
 
-// End game button (concentration only)
-document.getElementById('btn-conc-sync').addEventListener('click', () => {
-  // リロード中フラグを立ててからリロード（ホーム画面チラつき防止）
-  sessionStorage.setItem('vcg-syncing', '1');
-  window.location.reload();
+// 画面が固まったらボタン（神経衰弱・ババ抜き両方）
+['btn-conc-sync', 'btn-om-sync'].forEach(id => {
+  document.getElementById(id).addEventListener('click', () => {
+    // リロード中フラグを立ててからリロード（ホーム画面チラつき防止）
+    sessionStorage.setItem('vcg-syncing', '1');
+    window.location.reload();
+  });
 });
 
 document.getElementById('btn-conc-end').addEventListener('click', () => {
