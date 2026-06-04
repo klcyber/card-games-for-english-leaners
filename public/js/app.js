@@ -632,13 +632,17 @@ socket.on('game-start', ({ gameType }) => {
 let _relinkCooldown = 0;
 socket.on('game-state', state => {
   // 自己修復: 自分のsocket.idがプレイヤー一覧に無い＝サーバーとIDがズレている
-  // → 自動で再リンク要求（手動リフレッシュ不要）
+  // この状態で描画すると「自分が相手側に表示される」等のバグになるため、
+  // 再リンクを要求し、ズレた状態は描画せずスキップ（修復後の正しい状態を待つ）
   const known = state.type === 'concentration'
     ? state.scores?.some(s => s.id === socket.id)
     : state.players?.some(p => p.id === socket.id);
-  if (!known && Date.now() - _relinkCooldown > 3000) {
-    _relinkCooldown = Date.now();
-    socket.emit('reconnect-player', { clientId: myClientId });
+  if (!known) {
+    if (Date.now() - _relinkCooldown > 2000) {
+      _relinkCooldown = Date.now();
+      socket.emit('reconnect-player', { clientId: myClientId });
+    }
+    return; // ズレた状態は描画しない
   }
 
   if (state.type === 'concentration') {

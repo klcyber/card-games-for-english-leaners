@@ -551,6 +551,25 @@ function findPlayerByClientId(clientId) {
   return null;
 }
 
+// 再接続でplayer.idが変わった時、ゲーム内のID参照を全て移行する
+// （手札・スコア・脱落リスト等は古いsocket.idをキーにしているため）
+function migratePlayerId(room, oldId, newId) {
+  if (oldId === newId) return;
+  const g = room.game;
+  if (room.host === oldId) room.host = newId;
+  if (!g) return;
+
+  if (g.type === 'concentration') {
+    if (g.scores && oldId in g.scores) { g.scores[newId] = g.scores[oldId]; delete g.scores[oldId]; }
+    if (g.streak && oldId in g.streak) { g.streak[newId] = g.streak[oldId]; delete g.streak[oldId]; }
+  } else if (g.type === 'oldmaid') {
+    if (g.hands && oldId in g.hands) { g.hands[newId] = g.hands[oldId]; delete g.hands[oldId]; }
+    if (Array.isArray(g.eliminated))  g.eliminated  = g.eliminated.map(id => id === oldId ? newId : id);
+    if (Array.isArray(g.readyPlayers)) g.readyPlayers = g.readyPlayers.map(id => id === oldId ? newId : id);
+    if (g.waitingForPass === oldId) g.waitingForPass = newId;
+  }
+}
+
 // ─── Socket.io ────────────────────────────────────────────────────────────────
 
 io.on('connection', socket => {
@@ -573,14 +592,18 @@ io.on('connection', socket => {
     const { room, player } = found;
     const oldSocketId = player.id;
     player.id = socket.id; // socket.idを更新
-    if (room.host === oldSocketId) room.host = socket.id;
+    migratePlayerId(room, oldSocketId, socket.id); // 手札・スコア等を移行
 
     socket.data.roomCode = room.code;
     socket.join(room.code);
 
-    // ゲーム中なら現在のゲーム状態を送信
+    // ゲーム中なら現在のゲーム状態を全員に送信（相手側の表示も更新）
     if (room.game) {
-      socket.emit('game-state', gameStatePayload(room));
+      io.to(room.code).emit('game-state', gameStatePayload(room));
+      // 自分の手札も再送（ババ抜き）
+      if (room.game.type === 'oldmaid' && room.game.hands[socket.id]) {
+        socket.emit('hand-update', { hand: room.game.hands[socket.id] });
+      }
     } else {
       socket.emit('room-state', roomStatePayload(room));
     }
@@ -619,10 +642,13 @@ io.on('connection', socket => {
       if (existing) {
         const oldId = existing.id;
         existing.id = socket.id;
-        if (room.host === oldId) room.host = socket.id;
+        migratePlayerId(room, oldId, socket.id); // 手札・スコア等を移行
         socket.data.roomCode = upper;
         socket.join(upper);
-        socket.emit('game-state', gameStatePayload(room));
+        io.to(upper).emit('game-state', gameStatePayload(room));
+        if (room.game.type === 'oldmaid' && room.game.hands[socket.id]) {
+          socket.emit('hand-update', { hand: room.game.hands[socket.id] });
+        }
         return;
       }
     }
