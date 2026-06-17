@@ -923,8 +923,8 @@ io.on('connection', socket => {
       }
     };
 
-    // ゲーム中は5分間プレイヤーを保持して再接続を待つ（学校WiFiの途切れ対策）
-    if (room.game && room.game.phase === 'playing' && clientId) {
+    // ゲーム中（配牌・プレイ中）は5分間プレイヤーを保持して再接続を待つ（学校WiFiの途切れ対策）
+    if (room.game && room.game.phase !== 'finished' && clientId) {
       disconnectTimers[clientId] = setTimeout(removePlayer, 300000);
 
       // 神経衰弱: 切断したプレイヤーのターンなら5秒後にスキップ
