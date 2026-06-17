@@ -227,6 +227,9 @@ function startOldMaid(room) {
     hands[room.players[i % room.players.length].id].push(card);
   });
 
+  // 初期ペア数を均等化（運による偏りで一人だけ大量に捨てられるのを防ぐ）
+  balanceInitialPairs(hands, room.players.map(p => p.id));
+
   room.game = {
     type: 'oldmaid',
     hands,
@@ -236,6 +239,49 @@ function startOldMaid(room) {
     readyPlayers: [],
     wordList,
   };
+}
+
+// 各プレイヤーが最初から持っている「完全ペア数」の差が1以内になるよう調整する。
+// 手札枚数は変えず、多い人のペアを崩して少ない人と1枚ずつ交換する（ランダム配布は維持）。
+function balanceInitialPairs(hands, playerIds) {
+  const completePairCount = (hand) => {
+    const m = {};
+    hand.forEach(c => { if (c.wordId !== 'joker') m[c.wordId] = (m[c.wordId] || 0) + 1; });
+    return Object.values(m).filter(v => v === 2).length;
+  };
+  const completePairs = (hand) => {
+    const m = {};
+    hand.forEach(c => { if (c.wordId !== 'joker') (m[c.wordId] = m[c.wordId] || []).push(c); });
+    return Object.values(m).filter(cs => cs.length === 2);
+  };
+  const isSingle = (hand, card) => hand.filter(c => c.wordId === card.wordId).length === 1;
+  const hasWord  = (hand, wordId) => hand.some(c => c.wordId === wordId);
+
+  let guard = 0;
+  while (guard++ < 500) {
+    let maxId = playerIds[0], minId = playerIds[0];
+    for (const id of playerIds) {
+      if (completePairCount(hands[id]) > completePairCount(hands[maxId])) maxId = id;
+      if (completePairCount(hands[id]) < completePairCount(hands[minId])) minId = id;
+    }
+    if (completePairCount(hands[maxId]) - completePairCount(hands[minId]) <= 1) break;
+
+    // maxの完全ペアを1組崩す: 片方 w を、minの単札 x と交換する
+    let swapped = false;
+    for (const pair of completePairs(hands[maxId])) {
+      const w = pair[0]; // 動かす札（相方 pair[1] はmaxに残るのでminで新ペアにならない）
+      // minの中で「単札」かつ「相方がmaxに無い」札を探す（maxで新ペアを作らない）
+      const x = hands[minId].find(c =>
+        c.wordId !== 'joker' && isSingle(hands[minId], c) && !hasWord(hands[maxId], c.wordId)
+      );
+      if (!x) continue;
+      hands[maxId] = hands[maxId].filter(c => c.id !== w.id); hands[maxId].push(x);
+      hands[minId] = hands[minId].filter(c => c.id !== x.id); hands[minId].push(w);
+      swapped = true;
+      break;
+    }
+    if (!swapped) break; // 交換相手が見つからなければ終了
+  }
 }
 
 function checkOldMaidGameOver(room) {
