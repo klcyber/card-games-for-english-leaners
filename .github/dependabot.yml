@@ -1,0 +1,22 @@
+# Dependabot 設定: 依存ライブラリの脆弱性を自動で検知し、修正用PRを作成する
+# https://docs.github.com/code-security/dependabot
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"      # 週1回チェック
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+    # 細かいバージョン更新は1つのPRにまとめて通知を減らす
+    groups:
+      minor-and-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "deps"
+    labels:
+      - "dependencies"
