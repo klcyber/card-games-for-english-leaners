@@ -1,0 +1,11 @@
+# Render 用の構成ファイル（Blueprint）
+# https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: vocab-card-game
+    runtime: node
+    plan: free            # 無料プラン（15分無操作でスリープ）
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /
+    autoDeploy: true       # GitHubにpushすると自動デプロイ
